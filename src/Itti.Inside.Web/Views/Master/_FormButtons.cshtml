@@ -1,0 +1,11 @@
+@* The model says whether the form is editing an existing item. *@
+@model bool
+
+<div class="master-form__buttons">
+    <button type="submit" class="btn-portal">@(Model ? "Save changes" : "Add")</button>
+
+    @if (Model)
+    {
+        <a class="master-action" asp-action="Index">Cancel</a>
+    }
+</div>

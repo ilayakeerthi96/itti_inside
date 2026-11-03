@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Itti.Inside.Application/Itti.Inside.Application.csproj" />
+    <Project Path="src/Itti.Inside.Domain/Itti.Inside.Domain.csproj" />
+    <Project Path="src/Itti.Inside.Infrastructure/Itti.Inside.Infrastructure.csproj" />
+    <Project Path="src/Itti.Inside.Web/Itti.Inside.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Itti.Inside.Tests/Itti.Inside.Tests.csproj" />
+  </Folder>
+</Solution>

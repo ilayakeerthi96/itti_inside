@@ -1,0 +1,12 @@
+@model ErrorViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="auth-card" aria-labelledby="error-title">
+    <p class="auth-card__code">Error @Model.StatusCode</p>
+    <h1 class="auth-card__title" id="error-title">@Model.Title</h1>
+    <p class="auth-card__text">@Model.Message</p>
+    <a class="auth-card__submit" href="~/">Back to Home</a>
+</section>

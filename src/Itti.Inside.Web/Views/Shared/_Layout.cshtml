@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] | ITTI Inside</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    @await Component.InvokeAsync("MainNavigation")
+
+    <main id="main" tabindex="-1">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container-xxl site-footer__inner">
+            <span>&copy; @DateTime.Now.Year ITTI. All rights reserved.</span>
+            <span>For internal use only.</span>
+        </div>
+    </footer>
+
+    <button type="button" class="back-to-top" data-back-to-top aria-label="Back to top" hidden>
+        <icon name="arrow-up" />
+    </button>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/portal.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+@* Title band shared by the inner pages. Model is the section the page belongs to, if any. *@
+@model string?
+
+<div class="page-banner">
+    <div class="container-xxl">
+        <nav aria-label="Breadcrumb">
+            <ol class="page-banner__crumbs">
+                <li><a href="~/">Home</a></li>
+                @if (!string.IsNullOrEmpty(Model))
+                {
+                    <li>@Model</li>
+                }
+                <li aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+        <h1 class="page-banner__title">@ViewData["Title"]</h1>
+    </div>
+</div>

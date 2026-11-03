@@ -1,0 +1,48 @@
+@using Itti.Inside.Application.Identity
+@using Microsoft.Extensions.Options
+@model LoginViewModel
+@inject IOptions<PortalAuthenticationOptions> AuthenticationOptions
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Sign In";
+}
+
+<section class="auth-card" aria-labelledby="sign-in-title">
+    <h1 class="auth-card__title" id="sign-in-title">Sign In</h1>
+
+    <form asp-action="Login" method="post" data-sign-in-form novalidate>
+        <input asp-for="ReturnUrl" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="auth-card__alert" role="alert"></div>
+
+        <div class="auth-field">
+            <label asp-for="UserId" class="auth-field__label"></label>
+            <div class="auth-field__control">
+                <icon name="user" />
+                <input asp-for="UserId" class="auth-field__input" placeholder="Enter your User ID..."
+                       autocomplete="username" autofocus required />
+            </div>
+            <span asp-validation-for="UserId" class="auth-field__error"></span>
+        </div>
+
+        <div class="auth-field">
+            <label asp-for="Password" class="auth-field__label"></label>
+            <div class="auth-field__control">
+                <icon name="lock" />
+                <input asp-for="Password" class="auth-field__input" placeholder="Password..."
+                       autocomplete="current-password" required />
+                <button type="button" class="auth-field__toggle" data-password-toggle aria-label="Show password" aria-pressed="false">
+                    <icon name="eye" />
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="auth-field__error"></span>
+        </div>
+
+        <button type="submit" class="auth-card__submit">Sign In</button>
+    </form>
+
+    @if (AuthenticationOptions.Value.Provider == PortalAuthenticationOptions.DemoProvider)
+    {
+        <p class="auth-card__note">Demo sign-in. Not connected to company accounts yet.</p>
+    }
+</section>

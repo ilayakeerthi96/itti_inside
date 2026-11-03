@@ -1,0 +1,31 @@
+@model IReadOnlyList<NewsItem>
+
+<section class="news-band" aria-labelledby="latest-news-title">
+    <div class="container-xxl">
+        <div class="news-band__bar">
+            <h2 class="news-band__label" id="latest-news-title">Latest News</h2>
+
+            <div class="news-band__viewport">
+                <div class="news-band__track" data-ticker>
+                    <ul class="news-band__list">
+                        @foreach (var item in Model)
+                        {
+                            <li>@item.Text</li>
+                        }
+                    </ul>
+                    @* Second copy makes the scroll loop seamlessly. *@
+                    <ul class="news-band__list" aria-hidden="true">
+                        @foreach (var item in Model)
+                        {
+                            <li>@item.Text</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <button type="button" class="news-band__toggle" data-ticker-toggle aria-label="Pause news">
+                <icon name="pause" />
+            </button>
+        </div>
+    </div>
+</section>

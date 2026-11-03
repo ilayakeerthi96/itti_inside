@@ -1,0 +1,34 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,xml,csproj,props,slnx,svg,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = true:warning
+dotnet_sort_system_directives_first = true
+
+# ASP.NET Core has no synchronization context, so ConfigureAwait adds noise here.
+dotnet_diagnostic.CA2007.severity = none
+
+# Controllers, views and the test factory need these types to stay public.
+dotnet_diagnostic.CA1515.severity = none
+
+[tests/**.cs]
+# Test names read as sentences.
+dotnet_diagnostic.CA1707.severity = none
+
+[**/Migrations/**.cs]
+# Written by the dotnet-ef tool.
+generated_code = true

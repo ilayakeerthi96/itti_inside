@@ -1,0 +1,41 @@
+@model HomeDashboard
+@{
+    ViewData["Title"] = "Home";
+}
+
+@if (Model.HeroSlides.Count > 0)
+{
+    <partial name="_Hero" model="Model.HeroSlides" />
+}
+
+@if (Model.LatestNews.Count > 0)
+{
+    <partial name="_LatestNews" model="Model.LatestNews" />
+}
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <partial name="_CeoDesk" model="Model.CeoMessage" />
+            </div>
+            <div class="col-lg-5">
+                <partial name="_CustomerFeedback" model="Model" />
+            </div>
+            <div class="col-lg-5">
+                <partial name="_Birthdays" model="Model.Birthdays" />
+            </div>
+            <div class="col-lg-7">
+                <partial name="_RockstarAwards" model="Model" />
+            </div>
+            <div class="col-lg-6">
+                <partial name="_Celebration" model="Model.WeddingBells"
+                         view-data='new ViewDataDictionary(ViewData) { ["Heading"] = "Wedding Bells", ["Art"] = "wedding", ["Anchor"] = "wedding-bells" }' />
+            </div>
+            <div class="col-lg-6">
+                <partial name="_Celebration" model="Model.NewBorns"
+                         view-data='new ViewDataDictionary(ViewData) { ["Heading"] = "New Born", ["Art"] = "newborn", ["Anchor"] = "new-born" }' />
+            </div>
+        </div>
+    </div>
+</div>

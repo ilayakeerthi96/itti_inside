@@ -1,0 +1,13 @@
+@* Previous, page count and next for a card with data-pager. The model names the items, for screen readers.
+   Hidden until portal.js finds more than one page, so without scripts every item simply shows. *@
+@model string
+
+<div class="pager-arrows" data-pager-controls hidden>
+    <button type="button" class="pager-arrows__button" data-pager-prev aria-label="Previous @Model">
+        <icon name="chevron-left" />
+    </button>
+    <span class="pager-arrows__count" data-pager-count aria-live="polite"></span>
+    <button type="button" class="pager-arrows__button" data-pager-next aria-label="Next @Model">
+        <icon name="chevron-right" />
+    </button>
+</div>

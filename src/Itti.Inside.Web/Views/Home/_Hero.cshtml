@@ -1,0 +1,40 @@
+@model IReadOnlyList<HeroSlide>
+@{
+    var greeting = $"Welcome back, {User.Identity?.Name}";
+}
+
+<section class="hero" aria-label="Highlights">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-portal-carousel>
+        <div class="carousel-inner">
+            @for (var index = 0; index < Model.Count; index++)
+            {
+                var slide = Model[index];
+
+                @* There are four background designs, so further slides reuse them in turn. *@
+                <div class="carousel-item hero-slide hero-slide--@(index % 4 + 1) @(index == 0 ? "active" : null)">
+                    <div class="container-xxl hero-slide__inner">
+                        <div class="hero-slide__copy">
+                            <p class="hero-slide__eyebrow">@greeting</p>
+                            <h1 class="hero-slide__title">@slide.Title</h1>
+                            <p class="hero-slide__subtitle">@slide.Subtitle</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="carousel-indicators hero-dots">
+            @for (var index = 0; index < Model.Count; index++)
+            {
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="@index"
+                        class="@(index == 0 ? "active" : null)"
+                        aria-current="@(index == 0 ? "true" : null)"
+                        aria-label="Show slide @(index + 1)"></button>
+            }
+        </div>
+
+        <button type="button" class="hero-pause" data-carousel-toggle aria-label="Pause slideshow">
+            <icon name="pause" />
+        </button>
+    </div>
+</section>

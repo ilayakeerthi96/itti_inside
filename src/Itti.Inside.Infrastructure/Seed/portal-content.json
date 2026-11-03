@@ -1,0 +1,192 @@
+{
+  // DUMMY DATA for the prototype. The landing page content below is copied into a new,
+  // empty database once; after that it is changed on the master page, not here.
+  // The menu, pages and applications at the end are still read from this file.
+  "heroSlides": [
+    {
+      "title": "Transforming Technology Together",
+      "subtitle": "Everything you need at ITTI, in one place."
+    },
+    {
+      "title": "One Team, One Inside",
+      "subtitle": "Sample slide. News, people and applications for every ITTIan."
+    },
+    {
+      "title": "Delivering For Our Customers",
+      "subtitle": "Sample slide. Celebrating the work our teams deliver every day."
+    },
+    {
+      "title": "Growing With Our People",
+      "subtitle": "Sample slide. Recognising the people behind our progress."
+    }
+  ],
+  "latestNews": [
+    {
+      "text": "Dear ITTIians, We are now active on social media platforms. We would require your all support to make the page more visible. So keep liking, following & re-tweeting."
+    }
+  ],
+  "ceoMessage": {
+    "excerpt": "Dear Ittians, It has been some time since I last shared an update on what's happening at ITTI. As we approach the close of the first half of FY27, I thought this would be a good time to share eight important developments that are shaping ITTI's journey ahead. 01 | Strong Growth & New Customers. FY26 delivered […]"
+  },
+  "customerFeedback": [
+    {
+      "date": "2026-10-09",
+      "client": "Airtec & Linde",
+      "team": "Suresh DM",
+      "excerpt": "Dear Mr. Suresh, Thank you so much for helping me out with the new system. Really couldn't have..."
+    },
+    {
+      "date": "2026-05-28",
+      "client": "Unilever",
+      "team": "Vijaykanth and Pratibha Kumari",
+      "excerpt": "Subject: Appreciation for Excellent Work – LATAM & CAM GL Integration. Hi Srini, Good day, I would like..."
+    },
+    {
+      "date": "2026-04-16",
+      "client": "Sample Client",
+      "team": "Sample Team",
+      "excerpt": "Sample feedback. The team went above and beyond to deliver the release on time..."
+    },
+    {
+      "date": "2026-03-02",
+      "client": "Sample Client",
+      "team": "Sample Team",
+      "excerpt": "Sample feedback. Thank you for the quick turnaround on our support requests..."
+    }
+  ],
+  "birthdays": {
+    "period": "Birthdays between 1st October To 31st October",
+    "entries": [
+      { "employeeId": "2882", "name": "Abdul Ameed Negaluru", "day": 11, "email": "abdul.ameed@itti.com", "location": "Bangalore" },
+      { "employeeId": "2500", "name": "Satyajit Das", "day": 13, "email": "satyajit.das@itti.com", "location": "Bangalore" },
+      { "employeeId": "2817", "name": "Raghunandan K C", "day": 13, "email": "raghunandan.kc@itti.com", "location": "Bangalore" },
+      { "employeeId": "2860", "name": "Bobby John", "day": 15, "email": "bobby.john@itti.com", "location": "Bangalore" },
+      { "employeeId": "2900", "name": "Litesh Singh", "day": 17, "email": "litesh.singh@itti.com", "location": "Bangalore" },
+      { "employeeId": "1683", "name": "Lizy Alex", "day": 19, "email": "liz@itti.com", "location": "Bangalore" }
+    ]
+  },
+  "rockstarAwards": [
+    {
+      "title": "Celebrating Kamasani Drakshayani – Recipient of the Rock Star Award – September 2026",
+      "publishedOn": "2026-10-09",
+      "excerpt": "Dear All, It gives us great pleasure to announce that Drakshayani, from Business Development team has been honoured with the Rock Star Award for the month September 2026 in recognition of her outstanding contributions and dedication. Drakshayani has contributed effectively to"
+    },
+    {
+      "title": "Celebrating Robin Nath – Recipient of the Rock Star Award – August 2026",
+      "publishedOn": "2026-09-16",
+      "excerpt": "Dear All, It gives us great pleasure to announce that Robin Nath, from D365 team has been honoured with the Rock Star Award for the month August 2026 in recognition of his outstanding contributions and dedication. Robin has demonstrated strong ownership,"
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – July 2026",
+      "publishedOn": "2026-08-11",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month July 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – June 2026",
+      "publishedOn": "2026-07-14",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month June 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – May 2026",
+      "publishedOn": "2026-06-10",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month May 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – April 2026",
+      "publishedOn": "2026-05-12",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month April 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – March 2026",
+      "publishedOn": "2026-04-09",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month March 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – February 2026",
+      "publishedOn": "2026-03-11",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month February 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – January 2026",
+      "publishedOn": "2026-02-10",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month January 2026 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – December 2025",
+      "publishedOn": "2026-01-13",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month December 2025 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – November 2025",
+      "publishedOn": "2025-12-09",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month November 2025 in recognition of outstanding contributions and dedication."
+    },
+    {
+      "title": "Celebrating Sample Employee – Recipient of the Rock Star Award – October 2025",
+      "publishedOn": "2025-11-11",
+      "excerpt": "Sample announcement. It gives us great pleasure to announce the Rock Star Award for the month October 2025 in recognition of outstanding contributions and dedication."
+    }
+  ],
+  "weddingBells": {
+    "announcements": [
+      "Suhas S (2836) of ITeS Team got Married on 27th July 2025",
+      "Mr. Satyajit Das of the Open Systems Team got married to Ms. Prajna on 4th July 2025."
+    ],
+    "closing": "Hearty Congratulations on behalf of all ITTIans."
+  },
+  "newBorns": {
+    "announcements": [
+      "Ms. Priti Latesh Parab (2331) of MS Dynamics-NAV/BC Team, is blessed with a Twin Baby Girls on Monday, 22 SEPT 2025",
+      "Gudluri Venkata Krishna (2816) of ITeS Team is blessed with a Baby boy on 22nd July 2025",
+      "Mr. Dharanidharan of IMS Team, and his family is blessed with a Newborn Baby Girl on 14th JULY 2025."
+    ],
+    "closing": "Hearty congratulations on behalf of all ITTIans."
+  },
+  "menu": [
+    { "title": "Home", "path": "/" },
+    { "title": "Applications", "path": "/applications" },
+    {
+      "title": "QA",
+      "children": [
+        { "title": "Quality Management System", "path": "/qa/quality-management-system" },
+        { "title": "Process Asset Library", "path": "/qa/process-asset-library" }
+      ]
+    },
+    {
+      "title": "HR",
+      "children": [
+        { "title": "Corporate Medical Insurance", "path": "/hr/corporate-medical-insurance" },
+        { "title": "HOLIDAYS – 2026", "path": "/hr/holidays-2026" },
+        { "title": "Organization Training", "path": "/hr/organization-training" },
+        { "title": "Useful Links", "path": "/hr/useful-links" },
+        { "title": "Travel desk", "path": "/hr/travel-desk" }
+      ]
+    }
+  ],
+  "pages": [
+    { "path": "/qa/quality-management-system", "title": "Quality Management System", "section": "QA", "summary": "The quality management system documents will appear here." },
+    { "path": "/qa/process-asset-library", "title": "Process Asset Library", "section": "QA", "summary": "Process templates, guidelines and checklists will appear here." },
+    { "path": "/hr/corporate-medical-insurance", "title": "Corporate Medical Insurance", "section": "HR", "summary": "Details of the corporate medical insurance policy will appear here." },
+    { "path": "/hr/holidays-2026", "title": "HOLIDAYS – 2026", "section": "HR", "summary": "The list of holidays for 2026 will appear here." },
+    { "path": "/hr/organization-training", "title": "Organization Training", "section": "HR", "summary": "Training programmes and their schedules will appear here." },
+    { "path": "/hr/useful-links", "title": "Useful Links", "section": "HR", "summary": "Useful links for employees will appear here." },
+    { "path": "/hr/travel-desk", "title": "Travel desk", "section": "HR", "summary": "Travel requests and the travel policy will appear here." },
+    { "path": "/ceo-desk", "title": "CEO's Desk", "section": null, "summary": "The full message from the CEO and past updates will appear here." },
+    { "path": "/customer-feedback", "title": "Customer Feedback", "section": null, "summary": "All appreciation received from our customers will appear here." },
+    { "path": "/rockstar-awards", "title": "Rockstar Awards", "section": null, "summary": "Full award announcements will appear here." },
+    { "path": "/applications/timesheet", "title": "Timesheet", "section": "Applications", "summary": "Fill in, submit and approve weekly timesheets here." },
+    { "path": "/applications/leave", "title": "Leave Management", "section": "Applications", "summary": "Apply for leave and track your balances here." },
+    { "path": "/applications/projects", "title": "Project Tracker", "section": "Applications", "summary": "Follow project status and allocations here." },
+    { "path": "/applications/expenses", "title": "Expense Claims", "section": "Applications", "summary": "Submit and track expense claims here." },
+    { "path": "/applications/helpdesk", "title": "IT Helpdesk", "section": "Applications", "summary": "Raise and track IT support tickets here." },
+    { "path": "/applications/learning", "title": "Learning Portal", "section": "Applications", "summary": "Find courses and certifications here." }
+  ],
+  "applications": [
+    { "name": "Timesheet", "description": "Fill in and submit your weekly timesheet.", "icon": "clock", "path": "/applications/timesheet" },
+    { "name": "Leave Management", "description": "Apply for leave and check your balance.", "icon": "calendar", "path": "/applications/leave" },
+    { "name": "Project Tracker", "description": "Follow project status and allocations.", "icon": "briefcase", "path": "/applications/projects" },
+    { "name": "Expense Claims", "description": "Submit and track your expense claims.", "icon": "receipt", "path": "/applications/expenses" },
+    { "name": "IT Helpdesk", "description": "Raise and track support tickets.", "icon": "life-buoy", "path": "/applications/helpdesk" },
+    { "name": "Learning Portal", "description": "Find courses and certifications.", "icon": "book", "path": "/applications/learning" }
+  ]
+}

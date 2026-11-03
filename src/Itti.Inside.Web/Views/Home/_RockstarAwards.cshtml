@@ -1,0 +1,24 @@
+@model HomeDashboard
+
+<section class="panel" id="rockstar-awards" aria-labelledby="rockstar-awards-title"
+         data-pager data-page-size="2">
+    <div class="panel__head">
+        <h2 class="panel__title" id="rockstar-awards-title">Rockstar Awards</h2>
+        <partial name="_PagerControls" model="@("awards")" />
+    </div>
+
+    <div class="award-grid" data-pager-list>
+        @foreach (var award in Model.RockstarAwards.Items)
+        {
+            <article class="award" data-pager-item>
+                <span class="award__star"><icon name="star" /></span>
+                <h3 class="award__title">@award.Title</h3>
+                <time class="award__date" datetime="@award.PublishedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                    @award.PublishedOn.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)
+                </time>
+                <p class="award__excerpt">@award.Excerpt</p>
+                <a class="panel__link" href="~/rockstar-awards">Read More <icon name="arrow-right" /></a>
+            </article>
+        }
+    </div>
+</section>

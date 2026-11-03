@@ -1,0 +1,18 @@
+@model PortalPage
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<partial name="_PageBanner" model="Model.Section" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <section class="panel coming-soon">
+            <span class="coming-soon__icon"><icon name="file-text" /></span>
+            <h2 class="panel__title">@Model.Title</h2>
+            <p class="coming-soon__text">@Model.Summary</p>
+            <p class="coming-soon__tag">Sample page. Content is coming soon.</p>
+            <a class="btn-portal" href="~/">Back to Home <icon name="arrow-right" /></a>
+        </section>
+    </div>
+</div>

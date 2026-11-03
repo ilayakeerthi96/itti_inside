@@ -1,0 +1,31 @@
+@model BirthdayCalendar
+
+<section class="panel panel--birthdays" id="birthdays" aria-labelledby="birthdays-title"
+         data-pager data-page-size="5">
+    <div class="panel__head panel__head--top">
+        <div>
+            <h2 class="panel__title" id="birthdays-title">Birthdays</h2>
+            <p class="panel__subtitle">@Model.Period</p>
+        </div>
+        <partial name="_PagerControls" model="@("birthdays")" />
+    </div>
+
+    <ul class="birthday-list" data-pager-list>
+        @foreach (var person in Model.Entries)
+        {
+            <li class="birthday" data-pager-item>
+                <span class="avatar" aria-hidden="true">@PersonDisplay.Initials(person.Name)</span>
+                <div class="birthday__who">
+                    <span class="birthday__name">@person.Name</span>
+                    <span class="birthday__meta">
+                        @person.EmployeeId &middot; @person.Location &middot;
+                        <a href="mailto:@person.Email">@person.Email</a>
+                    </span>
+                </div>
+                <span class="birthday__day">
+                    <span class="visually-hidden">Day </span>@person.Day
+                </span>
+            </li>
+        }
+    </ul>
+</section>

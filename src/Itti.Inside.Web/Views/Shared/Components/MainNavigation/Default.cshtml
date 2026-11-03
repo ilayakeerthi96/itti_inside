@@ -1,0 +1,71 @@
+@model MainNavigationViewModel
+@{
+    // An admin session holds only the master page, so its header leaves out the portal menu.
+    var isAdmin = User.IsInRole(PortalRoles.Admin);
+}
+
+<header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Main">
+        <div class="container-xxl">
+            <a class="navbar-brand" href="@Url.Content(isAdmin ? "~/master" : "~/")">
+                <img src="~/images/brand/inside-logo.png" alt="ITTI Inside" width="167" height="78" />
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#portalNav"
+                    aria-controls="portalNav" aria-expanded="false" aria-label="Toggle navigation">
+                <icon name="menu" />
+            </button>
+
+            <div class="collapse navbar-collapse" id="portalNav">
+                <ul class="navbar-nav">
+                    @if (isAdmin)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="~/master">Master</a>
+                        </li>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Items)
+                        {
+                            var isActive = Model.IsActive(item);
+
+                            if (item.HasChildren)
+                            {
+                                <li class="nav-item dropdown">
+                                    <button type="button" class="nav-link dropdown-toggle @(isActive ? "active" : null)"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        @item.Title
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        @foreach (var child in item.Children)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item @(Model.IsActive(child) ? "active" : null)"
+                                                   href="@Url.Content($"~{child.Path}")">@child.Title</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(isActive ? "active" : null)"
+                                       aria-current="@(isActive ? "page" : null)"
+                                       href="@Url.Content($"~{item.Path}")">@item.Title</a>
+                                </li>
+                            }
+                        }
+                    }
+
+                    <li class="nav-item">
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="nav-link">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

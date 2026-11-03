@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "itti-inside",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Itti.Inside.Web", "--launch-profile", "http"],
+      "port": 5010
+    }
+  ]
+}

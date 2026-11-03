@@ -1,0 +1,21 @@
+@model MasterTextForm
+@{
+    var label = MasterSections.ForText(Model.Key).TextLabel;
+    var isLongText = Model.Key == PortalTextKey.CeoMessage;
+}
+
+<section class="panel" aria-labelledby="master-text-title">
+    <h2 class="panel__title" id="master-text-title">@label</h2>
+
+    <form class="master-form" method="post" asp-controller="Master" asp-action="SaveText">
+        <input asp-for="Key" type="hidden" />
+
+        <div class="master-field">
+            <label class="visually-hidden" asp-for="Value">@label</label>
+            <textarea class="form-control" asp-for="Value" rows="@(isLongText ? 10 : 2)"
+                      maxlength="@(isLongText ? ContentLimits.LongText : ContentLimits.ShortText)" required></textarea>
+        </div>
+
+        <button type="submit" class="btn-portal">Save</button>
+    </form>
+</section>

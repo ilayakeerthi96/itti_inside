@@ -1,0 +1,9 @@
+@* The model is the item's Id. *@
+@model int
+
+<div class="master-table__actions">
+    <a class="master-action" asp-action="Index" asp-route-edit="@Model">Edit</a>
+    <form method="post" asp-action="Delete" asp-route-id="@Model" data-confirm="Delete this item? This can't be undone.">
+        <button type="submit" class="master-action master-action--danger">Delete</button>
+    </form>
+</div>

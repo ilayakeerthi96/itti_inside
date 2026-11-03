@@ -1,0 +1,67 @@
+@model MasterSectionViewModel<RockstarAward, RockstarAwardForm>
+@{
+    ViewData["Title"] = "Rockstar Awards";
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit award" : "Add an award")</h2>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-form__row master-form__row--wide-first">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Title"></label>
+                <input class="form-control" asp-for="Form.Title" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Title"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.PublishedOn"></label>
+                <input class="form-control" asp-for="Form.PublishedOn" required />
+                <span class="master-field__error" asp-validation-for="Form.PublishedOn"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Excerpt"></label>
+            <textarea class="form-control" asp-for="Form.Excerpt" rows="5" maxlength="@ContentLimits.LongText" required></textarea>
+            <span class="master-field__error" asp-validation-for="Form.Excerpt"></span>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Current awards</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Published</th>
+                        <th scope="col">Title</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@item.PublishedOn.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
+                            <td>@item.Title</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

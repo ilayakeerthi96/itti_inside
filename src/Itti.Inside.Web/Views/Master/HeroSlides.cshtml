@@ -1,0 +1,59 @@
+@model MasterSectionViewModel<HeroSlide, HeroSlideForm>
+@{
+    ViewData["Title"] = "Hero Slides";
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit slide" : "Add a slide")</h2>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Title"></label>
+            <input class="form-control" asp-for="Form.Title" maxlength="@ContentLimits.ShortText" required />
+            <span class="master-field__error" asp-validation-for="Form.Title"></span>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Subtitle"></label>
+            <input class="form-control" asp-for="Form.Subtitle" maxlength="@ContentLimits.ShortText" required />
+            <span class="master-field__error" asp-validation-for="Form.Subtitle"></span>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Current slides</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Subtitle</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Title</td>
+                            <td>@item.Subtitle</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

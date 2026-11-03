@@ -1,0 +1,27 @@
+@model HomeDashboard
+
+<section class="panel" id="customer-feedback" aria-labelledby="customer-feedback-title"
+         data-pager data-page-size="2">
+    <div class="panel__head">
+        <h2 class="panel__title" id="customer-feedback-title">Customer Feedback</h2>
+        <partial name="_PagerControls" model="@("feedback")" />
+    </div>
+
+    <ul class="feedback-list" data-pager-list>
+        @foreach (var entry in Model.CustomerFeedback.Items)
+        {
+            <li class="feedback" data-pager-item>
+                <time class="date-tile" datetime="@entry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                    <span class="date-tile__day">@entry.Date.ToString("MMM d", CultureInfo.InvariantCulture)</span>
+                    <span class="date-tile__year">@entry.Date.Year</span>
+                </time>
+                <div class="feedback__body">
+                    <h3 class="feedback__title">Client : @entry.Client, Team : @entry.Team</h3>
+                    <p class="feedback__excerpt">@entry.Excerpt</p>
+                </div>
+            </li>
+        }
+    </ul>
+
+    <a class="panel__link" href="~/customer-feedback">View all feedback <icon name="arrow-right" /></a>
+</section>

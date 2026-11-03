@@ -1,0 +1,51 @@
+@model MasterSectionViewModel<NewsItem, NewsItemForm>
+@{
+    ViewData["Title"] = "Latest News";
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit news" : "Add news")</h2>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Text"></label>
+            <textarea class="form-control" asp-for="Form.Text" rows="3" maxlength="@ContentLimits.LongText" required></textarea>
+            <span class="master-field__error" asp-validation-for="Form.Text"></span>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Current news</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">News</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Text</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

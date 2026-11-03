@@ -1,0 +1,48 @@
+@{
+    Layout = "_Layout";
+    var notice = TempData[MasterNotice.Key] as string;
+}
+
+@* Admins see only the master page, so the breadcrumb starts there instead of at Home. *@
+<div class="page-banner">
+    <div class="container-xxl">
+        <nav aria-label="Breadcrumb">
+            <ol class="page-banner__crumbs">
+                <li><a href="~/master">Master</a></li>
+                <li aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+        <h1 class="page-banner__title">@ViewData["Title"]</h1>
+    </div>
+</div>
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <div class="master">
+            <nav class="master-nav" aria-label="Master sections">
+                <p class="master-nav__title">Update the main page</p>
+                <ul>
+                    @foreach (var link in MasterSections.All)
+                    {
+                        var isCurrent = Context.Request.Path.StartsWithSegments($"/master/{link.Path}");
+
+                        <li>
+                            <a class="master-nav__link @(isCurrent ? "is-current" : null)"
+                               aria-current="@(isCurrent ? "page" : null)"
+                               href="@Url.Content($"~/master/{link.Path}")">@link.Title</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+
+            <div class="master__content">
+                @if (notice is not null)
+                {
+                    <p class="master-notice" role="status">@notice</p>
+                }
+
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>

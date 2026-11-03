@@ -1,0 +1,77 @@
+@model MasterSectionViewModel<CustomerFeedbackEntry, CustomerFeedbackForm>
+@{
+    ViewData["Title"] = "Customer Feedback";
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit feedback" : "Add feedback")</h2>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Date"></label>
+                <input class="form-control" asp-for="Form.Date" required />
+                <span class="master-field__error" asp-validation-for="Form.Date"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Client"></label>
+                <input class="form-control" asp-for="Form.Client" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Client"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Team"></label>
+                <input class="form-control" asp-for="Form.Team" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Team"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Excerpt"></label>
+            <textarea class="form-control" asp-for="Form.Excerpt" rows="4" maxlength="@ContentLimits.LongText" required></textarea>
+            <span class="master-field__error" asp-validation-for="Form.Excerpt"></span>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Current feedback</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Client</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Feedback</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@item.Date.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
+                            <td>@item.Client</td>
+                            <td>@item.Team</td>
+                            <td>@item.Excerpt</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

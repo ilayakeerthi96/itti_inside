@@ -1,0 +1,23 @@
+@model IReadOnlyList<PortalApplication>
+@{
+    ViewData["Title"] = "Applications";
+}
+
+<partial name="_PageBanner" model="(string?)null" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <ul class="app-grid">
+            @foreach (var application in Model)
+            {
+                <li>
+                    <a class="app-tile" href="@Url.Content($"~{application.Path}")">
+                        <span class="app-tile__icon"><icon name="@application.Icon" /></span>
+                        <span class="app-tile__name">@application.Name</span>
+                        <span class="app-tile__text">@application.Description</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

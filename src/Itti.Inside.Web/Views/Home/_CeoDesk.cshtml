@@ -1,0 +1,12 @@
+@model CeoMessage
+
+<section class="panel ceo" id="ceo-desk" aria-labelledby="ceo-desk-title">
+    <div class="ceo__art">
+        <img src="~/images/art/ceo-podium.svg" alt="" width="240" height="240" loading="lazy" />
+    </div>
+    <div class="ceo__body">
+        <h2 class="panel__title" id="ceo-desk-title">CEO's Desk</h2>
+        <p class="ceo__excerpt">@Model.Excerpt</p>
+        <a class="btn-portal" href="~/ceo-desk">More <icon name="arrow-right" /></a>
+    </div>
+</section>

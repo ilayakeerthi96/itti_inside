@@ -1,0 +1,89 @@
+@model MasterSectionViewModel<BirthdayEntry, BirthdayForm>
+@{
+    ViewData["Title"] = "Birthdays";
+}
+
+<partial name="~/Views/Master/_TextForm.cshtml" model="Model.Text" />
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit birthday" : "Add a birthday")</h2>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Name"></label>
+                <input class="form-control" asp-for="Form.Name" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Name"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.EmployeeId"></label>
+                <input class="form-control" asp-for="Form.EmployeeId" maxlength="@ContentLimits.EmployeeId" required />
+                <span class="master-field__error" asp-validation-for="Form.EmployeeId"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Day"></label>
+                <input class="form-control" asp-for="Form.Day" min="1" max="31" required />
+                <span class="master-field__error" asp-validation-for="Form.Day"></span>
+            </div>
+        </div>
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Email"></label>
+                <input class="form-control" asp-for="Form.Email" maxlength="@ContentLimits.Email" required />
+                <span class="master-field__error" asp-validation-for="Form.Email"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Location"></label>
+                <input class="form-control" asp-for="Form.Location" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Location"></span>
+            </div>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Current birthdays</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Day</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Employee ID</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Location</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Day</td>
+                            <td>@item.Name</td>
+                            <td>@item.EmployeeId</td>
+                            <td>@item.Email</td>
+                            <td>@item.Location</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

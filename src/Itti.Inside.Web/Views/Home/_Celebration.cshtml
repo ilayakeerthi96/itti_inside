@@ -1,0 +1,28 @@
+@model CelebrationBoard
+@{
+    var heading = (string)ViewData["Heading"]!;
+    var art = (string)ViewData["Art"]!;
+    var anchor = (string)ViewData["Anchor"]!;
+}
+
+<section class="panel celebration celebration--@art" id="@anchor" aria-labelledby="@anchor-title"
+         data-pager data-page-size="2">
+    <div class="celebration__banner">
+        <img src="~/images/art/@(art).svg" alt="" width="120" height="120" loading="lazy" />
+    </div>
+    <div class="celebration__body">
+        <div class="panel__head">
+            <h2 class="panel__title" id="@anchor-title">@heading</h2>
+            <partial name="_PagerControls" model="@("announcements")" />
+        </div>
+
+        <ul class="celebration__list" data-pager-list>
+            @foreach (var announcement in Model.Announcements)
+            {
+                <li data-pager-item>@announcement</li>
+            }
+        </ul>
+
+        <p class="celebration__closing">@Model.Closing</p>
+    </div>
+</section>

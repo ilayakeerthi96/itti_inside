@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] | ITTI Inside</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+</head>
+<body class="auth">
+    <header class="auth__bar">
+        <img src="~/images/brand/inside-logo.png" alt="ITTI Inside" width="167" height="78" />
+        <nav class="auth__social" aria-label="ITTI links">
+            <a href="#" aria-label="Find us"><icon name="map-pin" /></a>
+            <a href="#" aria-label="Facebook"><icon name="facebook" /></a>
+            <a href="#" aria-label="Twitter"><icon name="twitter" /></a>
+            <a href="#" aria-label="Contact us"><icon name="message" /></a>
+        </nav>
+    </header>
+
+    <main class="auth__main">
+        <div class="auth__brand">
+            <img class="auth__emblem" src="~/images/brand/inside-emblem.png" alt="" width="400" height="459" />
+            <p class="auth__tagline">Transforming Technology Together</p>
+        </div>
+
+        @RenderBody()
+    </main>
+
+    <script src="~/js/portal.js" asp-append-version="true"></script>
+</body>
+</html>
