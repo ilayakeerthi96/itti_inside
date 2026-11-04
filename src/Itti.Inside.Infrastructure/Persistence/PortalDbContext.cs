@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Itti.Inside.Infrastructure.Persistence;
 
-/// <summary>The MySQL tables behind the landing page.</summary>
+/// <summary>The SQL Server tables behind the landing page.</summary>
 public sealed class PortalDbContext : DbContext
 {
     public PortalDbContext(DbContextOptions<PortalDbContext> options)
@@ -28,13 +28,6 @@ public sealed class PortalDbContext : DbContext
     public DbSet<NewBornAnnouncement> NewBornAnnouncements => Set<NewBornAnnouncement>();
 
     public DbSet<PortalText> PortalTexts => Set<PortalText>();
-
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    {
-        ArgumentNullException.ThrowIfNull(configurationBuilder);
-
-        configurationBuilder.Properties<DateOnly>().HaveConversion<DateOnlyConverter>().HaveColumnType("date");
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

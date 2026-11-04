@@ -8,20 +8,21 @@ The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header, land
 | --- | --- |
 | Runtime | .NET 10 (LTS, supported until November 2028) |
 | Web | ASP.NET Core MVC with Razor views |
-| Data | MySQL 8.0, through Entity Framework Core |
+| Data | SQL Server 2016 or newer, through Entity Framework Core |
 | UI | Bootstrap 5.3 plus a custom theme in `wwwroot/css/portal.css` |
-| Tests | xUnit with in-memory integration tests, which need no MySQL |
+| Tests | xUnit with in-memory integration tests, which need no database server |
 
 Nothing loads from a CDN, so the site works on a closed network.
 
 ## Run it
 
-Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and MySQL 8.0.
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and SQL Server 2016 or newer.
 
-Passwords never go in the project or in source control. Save them once in your own user secrets instead. Run these in PowerShell, with your own values in place of the capitals:
+In Development the site uses the default SQL Server instance on the same PC with Windows sign-in, so the database needs no password. The connection is `ConnectionStrings:Portal` in `src/Itti.Inside.Web/appsettings.Development.json`.
+
+Passwords never go in the project or in source control. Save the two demo passwords once in your own user secrets instead. Run these in PowerShell, with your own values in place of the capitals:
 
 ```bash
-dotnet user-secrets set "ConnectionStrings:Portal" 'Server=localhost;Port=3306;Database=ittiinside;User=root;Password=YOUR_MYSQL_PASSWORD' --project src/Itti.Inside.Web
 dotnet user-secrets set "Authentication:Demo:Password" 'EMPLOYEE_PASSWORD' --project src/Itti.Inside.Web
 dotnet user-secrets set "Authentication:Admin:Password" 'ADMIN_PASSWORD' --project src/Itti.Inside.Web
 ```
@@ -34,9 +35,9 @@ dotnet run --project src/Itti.Inside.Web --launch-profile http
 
 Open <http://localhost:5010>. The demo user IDs are in `src/Itti.Inside.Web/appsettings.Development.json`, under `Authentication:Demo` (employee) and `Authentication:Admin`. Their passwords are the ones you saved above.
 
-The first run creates the `ittiinside` database and copies the starting content into it from `Seed/portal-content.json`. After that, the database is what counts: changing the seed file no longer changes the site.
+The first run creates the `IttiInsidePortal` database and copies the starting content into it from `Seed/portal-content.json`. It creates only that database and leaves any others on the server alone. After that, the database is what counts: changing the seed file no longer changes the site.
 
-To see the tables, open the connection in MySQL Workbench and refresh **Schemas**. On Windows, MySQL shows table names in lower case.
+To see the tables, open SQL Server Management Studio, connect to the server with Windows Authentication, and open **Databases**, then **IttiInsidePortal**, then **Tables**.
 
 Run the tests:
 
@@ -84,7 +85,7 @@ Each change is logged with the user ID of the person who made it.
 src/
   Itti.Inside.Domain/          Portal records: news, feedback, awards, menu items
   Itti.Inside.Application/     Interfaces and the landing page service
-  Itti.Inside.Infrastructure/  MySQL access and the dummy sign-in
+  Itti.Inside.Infrastructure/  SQL Server access and the dummy sign-in
     Persistence/               Database tables, migrations and first-run data
     Seed/portal-content.json   Starting content, the header menu and the pages
   Itti.Inside.Web/             Controllers, views, security and static files
@@ -144,7 +145,7 @@ Use `Staging`, because the demo sign-in does not run in `Production`. Set the da
 
 ```bash
 ASPNETCORE_ENVIRONMENT=Staging
-ConnectionStrings__Portal=<your MySQL connection string>
+ConnectionStrings__Portal=<your SQL Server connection string>
 Authentication__Demo__UserId=<choose one>
 Authentication__Demo__Password=<choose one>
 Authentication__Admin__UserId=<choose one>
@@ -176,14 +177,14 @@ The starting content is copied only outside Production. In Production the site s
 
 ```bash
 docker build -t itti-inside .
-docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Staging -e ConnectionStrings__Portal="<your MySQL connection string>" -e Authentication__Demo__UserId=<choose one> -e Authentication__Demo__Password=<choose one> -e Authentication__Admin__UserId=<choose one> -e Authentication__Admin__Password=<choose one> itti-inside
+docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Staging -e ConnectionStrings__Portal="<your SQL Server connection string>" -e Authentication__Demo__UserId=<choose one> -e Authentication__Demo__Password=<choose one> -e Authentication__Admin__UserId=<choose one> -e Authentication__Admin__Password=<choose one> itti-inside
 ```
 
 ### Go-live checklist
 
 - [ ] Replace the demo sign-in and set `Authentication:Provider`.
 - [ ] Give the `Admin` role to the people who update the portal.
-- [ ] Set `ConnectionStrings:Portal` to the real database, kept outside source control. Use a dedicated MySQL account, not `root`.
+- [ ] Set `ConnectionStrings:Portal` to the real database, kept outside source control. Use a dedicated SQL Server login that can reach only this database, not `sa`.
 - [ ] Back up the database: it now holds the only copy of the portal content.
 - [ ] Remove the sample landing page content from `Seed/portal-content.json`.
 - [ ] Set `AllowedHosts` to the real host name.

@@ -1,10 +1,7 @@
 using Itti.Inside.Application.Identity;
 using Itti.Inside.Infrastructure;
 using Itti.Inside.Infrastructure.Identity;
-using Itti.Inside.Infrastructure.Persistence;
 using Itti.Inside.Infrastructure.Seed;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -91,36 +88,6 @@ public sealed class DemoCredentialValidatorTests
         }));
 
         Assert.Null(await validator.ValidateAsync(string.Empty, string.Empty, CancellationToken.None));
-    }
-}
-
-public sealed class DateMappingTests
-{
-    // The tests run on SQLite, which reads dates either way. MySQL needs the converter, or every page with a date fails.
-    [Fact]
-    public void Every_date_column_goes_through_the_converter_mysql_needs()
-    {
-        using var database = new SqliteConnection("Data Source=:memory:");
-        using var context = new PortalDbContext(new DbContextOptionsBuilder<PortalDbContext>().UseSqlite(database).Options);
-
-        var dates = context.Model.GetEntityTypes()
-            .SelectMany(entity => entity.GetProperties())
-            .Where(property => property.ClrType == typeof(DateOnly))
-            .ToArray();
-
-        Assert.NotEmpty(dates);
-        Assert.All(dates, property => Assert.IsType<DateOnlyConverter>(property.GetValueConverter()));
-    }
-
-    [Fact]
-    public void Dates_survive_the_conversion_unchanged()
-    {
-        var converter = new DateOnlyConverter();
-        var date = new DateOnly(2026, 10, 9);
-
-        var stored = (DateTime)converter.ConvertToProvider(date)!;
-
-        Assert.Equal(date, (DateOnly)converter.ConvertFromProvider(stored)!);
     }
 }
 

@@ -13,6 +13,9 @@ namespace Itti.Inside.Infrastructure;
 
 public static class DependencyInjection
 {
+    // Compatibility level 130 is SQL Server 2016, the oldest version this portal supports.
+    private const int SqlServerCompatibilityLevel = 130;
+
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -21,9 +24,10 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(environment);
 
-        services.AddDbContext<PortalDbContext>(options => options.UseMySQL(
+        services.AddDbContext<PortalDbContext>(options => options.UseSqlServer(
             configuration.GetConnectionString("Portal")
-                ?? throw new InvalidOperationException("Set the database in ConnectionStrings:Portal.")));
+                ?? throw new InvalidOperationException("Set the database in ConnectionStrings:Portal."),
+            sqlServer => sqlServer.UseCompatibilityLevel(SqlServerCompatibilityLevel)));
 
         services.AddScoped<PortalDatabaseInitializer>();
         services.AddScoped<IPortalContentRepository, SqlPortalContentRepository>();
