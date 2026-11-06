@@ -26,13 +26,16 @@ public class PortalWebFactory : WebApplicationFactory<Program>
 
     protected virtual int SignInAttemptsPerMinute => 1000;
 
+    /// <summary>The optional employee account. An empty user ID switches it off.</summary>
+    protected virtual string EmployeeUserId => UserId;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.UseEnvironment("Testing");
         builder.UseSetting("Authentication:Provider", "Demo");
-        builder.UseSetting("Authentication:Demo:UserId", UserId);
+        builder.UseSetting("Authentication:Demo:UserId", EmployeeUserId);
         builder.UseSetting("Authentication:Demo:Password", Password);
         builder.UseSetting("Authentication:Demo:DisplayName", "Test User");
         builder.UseSetting("Authentication:Admin:UserId", AdminId);
@@ -80,4 +83,31 @@ public class PortalWebFactory : WebApplicationFactory<Program>
 public sealed class StrictRateLimitWebFactory : PortalWebFactory
 {
     protected override int SignInAttemptsPerMinute => 2;
+}
+
+/// <summary>Same application with only the admin account, as the IIS setup now configures it.</summary>
+public sealed class AdminOnlyWebFactory : PortalWebFactory
+{
+    protected override string EmployeeUserId => string.Empty;
+}
+
+/// <summary>
+/// Same application hosted the way IIS runs it as an application under another site, at /inside.
+/// The server then treats /inside as the path base.
+/// </summary>
+public sealed class SubPathWebFactory : PortalWebFactory
+{
+    public const string PathBase = "/inside";
+
+    public HttpClient CreateSubPathBrowser()
+    {
+        Server.BaseAddress = new Uri($"https://localhost{PathBase}/");
+
+        return CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            BaseAddress = new Uri($"https://localhost{PathBase}/"),
+            HandleCookies = true,
+        });
+    }
 }

@@ -10,6 +10,8 @@ public sealed class MainNavigationViewComponent(INavigationRepository navigation
     {
         var items = await navigation.GetMenuAsync(HttpContext.RequestAborted);
 
-        return View(new MainNavigationViewModel(items, HttpContext.Request.Path));
+        var path = HttpContext.Request.Path;
+
+        return View(new MainNavigationViewModel(items, path, path.StartsWithSegments("/master", StringComparison.OrdinalIgnoreCase)));
     }
 }

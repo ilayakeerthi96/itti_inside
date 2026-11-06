@@ -17,10 +17,13 @@ public sealed class PortalAuthenticationOptions
     [Range(5, 1440)]
     public int SessionMinutes { get; set; } = 480;
 
-    /// <summary>The employee account of the Demo provider.</summary>
+    /// <summary>
+    /// The optional employee account of the Demo provider. The landing page needs no sign-in, so it
+    /// stays switched off unless a user ID is set.
+    /// </summary>
     public DemoUserOptions Demo { get; set; } = new();
 
-    /// <summary>The admin account of the Demo provider. It works only on the admin sign-in page.</summary>
+    /// <summary>The admin account of the Demo provider. It opens the master page.</summary>
     public DemoUserOptions Admin { get; set; } = new() { DisplayName = "Portal Admin", Email = "portal.admin@example.com" };
 }
 

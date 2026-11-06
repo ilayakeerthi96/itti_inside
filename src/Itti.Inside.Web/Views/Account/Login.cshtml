@@ -4,11 +4,12 @@
 @inject IOptions<PortalAuthenticationOptions> AuthenticationOptions
 @{
     Layout = "_AuthLayout";
-    ViewData["Title"] = "Sign In";
+    // Only admins sign in: everyone else opens the landing page without this page.
+    ViewData["Title"] = "Admin Sign In";
 }
 
 <section class="auth-card" aria-labelledby="sign-in-title">
-    <h1 class="auth-card__title" id="sign-in-title">Sign In</h1>
+    <h1 class="auth-card__title" id="sign-in-title">Admin Sign In</h1>
 
     <form asp-action="Login" method="post" data-sign-in-form novalidate>
         <input asp-for="ReturnUrl" type="hidden" />

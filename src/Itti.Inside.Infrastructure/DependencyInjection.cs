@@ -73,12 +73,14 @@ public static class DependencyInjection
                 }
 
                 services.AddOptions<PortalAuthenticationOptions>()
+                    // The admin account is what opens the master page. The employee account is optional:
+                    // the landing page needs no sign-in.
                     .Validate(
-                        options => options.Demo.UserId.Length > 0 && options.Demo.Password.Length > 0,
-                        "The Demo sign-in needs Authentication:Demo:UserId and Authentication:Demo:Password.")
+                        options => options.Admin.UserId.Length > 0 && options.Admin.Password.Length > 0,
+                        "The Demo sign-in needs Authentication:Admin:UserId and Authentication:Admin:Password for the master page.")
                     .Validate(
-                        options => options.Admin.UserId.Length == 0 || options.Admin.Password.Length > 0,
-                        "Set Authentication:Admin:Password, or clear Authentication:Admin:UserId to switch the admin account off.");
+                        options => options.Demo.UserId.Length == 0 || options.Demo.Password.Length > 0,
+                        "Set Authentication:Demo:Password, or clear Authentication:Demo:UserId to switch the employee account off.");
 
                 services.AddScoped<ICredentialValidator, DemoCredentialValidator>();
                 break;

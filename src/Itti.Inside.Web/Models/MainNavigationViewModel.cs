@@ -2,7 +2,10 @@ using Itti.Inside.Domain.Navigation;
 
 namespace Itti.Inside.Web.Models;
 
-public sealed record MainNavigationViewModel(IReadOnlyList<NavigationItem> Items, string CurrentPath)
+/// <param name="Items">The portal menu.</param>
+/// <param name="CurrentPath">The page being shown, without the path base.</param>
+/// <param name="IsMasterArea">True on the master pages, which show the admin header instead of the menu.</param>
+public sealed record MainNavigationViewModel(IReadOnlyList<NavigationItem> Items, string CurrentPath, bool IsMasterArea)
 {
     public bool IsActive(NavigationItem item)
     {
@@ -11,6 +14,11 @@ public sealed record MainNavigationViewModel(IReadOnlyList<NavigationItem> Items
         if (item.HasChildren)
         {
             return item.Children.Any(IsActive);
+        }
+
+        if (item.IsExternal)
+        {
+            return false;
         }
 
         return item.Path == "/"

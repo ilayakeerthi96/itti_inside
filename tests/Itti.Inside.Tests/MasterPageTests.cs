@@ -71,18 +71,18 @@ public sealed class MasterSectionTests(PortalWebFactory factory) : IClassFixture
 
     [Theory]
     [InlineData("/")]
-    [InlineData("/applications")]
     [InlineData("/ceo-desk")]
     [InlineData("/hr/travel-desk")]
-    public async Task Admin_is_kept_to_the_master_page(string path)
+    public async Task Admin_sees_the_portal_pages_as_everyone_does(string path)
     {
         using var client = factory.CreateBrowser();
         await client.SignInAsAdminAsync();
 
-        using var response = await client.GetAsync(new Uri(path, UriKind.Relative));
+        var html = await client.GetStringAsync(new Uri(path, UriKind.Relative));
+        var header = html[..html.IndexOf("</header>", StringComparison.Ordinal)];
 
-        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/master", response.Headers.Location?.OriginalString);
+        Assert.Contains("Applications", header, StringComparison.Ordinal);
+        Assert.DoesNotContain("href=\"/master\"", header, StringComparison.Ordinal);
     }
 }
 
@@ -274,13 +274,12 @@ public sealed class MasterUpdateTests(PortalWebFactory factory) : IClassFixture<
         Assert.DoesNotContain("Forged news.", await MainPageAsync(), StringComparison.Ordinal);
     }
 
-    // The main page as an employee sees it: an admin session can't open it.
+    // The main page as everyone sees it, without signing in.
     private async Task<string> MainPageAsync()
     {
-        using var employee = factory.CreateBrowser();
-        await employee.SignInAsync();
+        using var visitor = factory.CreateBrowser();
 
-        return await employee.GetStringAsync(new Uri("/", UriKind.Relative));
+        return await visitor.GetStringAsync(new Uri("/", UriKind.Relative));
     }
 
     private async Task<T> SaveAsync<T>(T item)
@@ -313,7 +312,6 @@ public sealed class EmptyContentTests(PortalWebFactory factory) : IClassFixture<
         }
 
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         using var response = await client.GetAsync(new Uri("/", UriKind.Relative));
 
@@ -338,15 +336,39 @@ public sealed class MasterAccessTests(PortalWebFactory factory) : IClassFixture<
         Assert.StartsWith("/error/403", response.Headers.Location?.PathAndQuery, StringComparison.Ordinal);
     }
 
-    [Fact]
-    public async Task Signed_out_visitor_is_sent_to_the_sign_in_page()
+    [Theory]
+    [InlineData("/master")]
+    [InlineData("/master/customer-feedback")]
+    [InlineData("/master/birthdays?edit=1")]
+    public async Task Signed_out_visitor_is_sent_to_the_sign_in_page(string path)
     {
         using var client = factory.CreateBrowser();
 
-        using var response = await client.GetAsync(new Uri("/master/customer-feedback", UriKind.Relative));
+        using var response = await client.GetAsync(new Uri(path, UriKind.Relative));
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         Assert.StartsWith("/account/login", response.Headers.Location?.PathAndQuery, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Signed_out_visitor_cannot_save_changes()
+    {
+        using var client = factory.CreateBrowser();
+        var token = await client.GetAntiforgeryTokenAsync("/account/login");
+
+        using var response = await client.PostAsync(new Uri("/master/text", UriKind.Relative), new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token,
+            ["Key"] = nameof(PortalTextKey.CeoMessage),
+            ["Value"] = "Visitor message.",
+        }));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.StartsWith("/account/login", response.Headers.Location?.PathAndQuery, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Visitor message.",
+            await client.GetStringAsync(new Uri("/", UriKind.Relative)),
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -355,11 +377,12 @@ public sealed class MasterAccessTests(PortalWebFactory factory) : IClassFixture<
         using var client = factory.CreateBrowser();
         await client.SignInAsync();
 
-        using var response = await client.PostFormAsync(
-            "/",
-            "/master/text",
-            new("Key", nameof(PortalTextKey.CeoMessage)),
-            new("Value", "Employee message."));
+        // The admin check comes before the anti-forgery check, so no token is needed to show the refusal.
+        using var response = await client.PostAsync(new Uri("/master/text", UriKind.Relative), new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Key"] = nameof(PortalTextKey.CeoMessage),
+            ["Value"] = "Employee message.",
+        }));
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         Assert.StartsWith("/error/403", response.Headers.Location?.PathAndQuery, StringComparison.Ordinal);
@@ -367,17 +390,6 @@ public sealed class MasterAccessTests(PortalWebFactory factory) : IClassFixture<
             "Employee message.",
             await client.GetStringAsync(new Uri("/", UriKind.Relative)),
             StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public async Task Employee_does_not_see_the_master_link()
-    {
-        using var client = factory.CreateBrowser();
-        await client.SignInAsync();
-
-        var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
-
-        Assert.DoesNotContain("href=\"/master\"", html, StringComparison.Ordinal);
     }
 }
 
@@ -451,7 +463,7 @@ public sealed class SingleSignInTests(PortalWebFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public async Task Employee_sees_admin_updates_on_the_full_main_page()
+    public async Task Visitor_sees_admin_updates_without_signing_in()
     {
         using var admin = factory.CreateBrowser();
         await admin.SignInAsAdminAsync();
@@ -461,9 +473,8 @@ public sealed class SingleSignInTests(PortalWebFactory factory) : IClassFixture<
             "/master/latest-news",
             KeyValuePair.Create("Form.Text", "News from the admin."));
 
-        using var employee = factory.CreateBrowser();
-        await employee.SignInAsync();
-        var home = await employee.GetStringAsync(new Uri("/", UriKind.Relative));
+        using var visitor = factory.CreateBrowser();
+        var home = await visitor.GetStringAsync(new Uri("/", UriKind.Relative));
 
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
         Assert.Contains("News from the admin.", home, StringComparison.Ordinal);

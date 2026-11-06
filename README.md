@@ -1,6 +1,6 @@
 # ITTI Inside
 
-The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header, landing page sections and sign-in page follow the current site. Admins update the landing page from the master page, and changes show straight away. This version is a prototype: sign-in is a demo, the starting content is dummy data, and the inner pages are placeholders.
+The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA and Logout menu items go to the pages of the current intranet. Admins sign in to the master page to update the landing page, and changes show straight away. This version is a prototype: the admin sign-in is a demo, the starting content is dummy data, and the HR pages are placeholders.
 
 ## Stack
 
@@ -20,10 +20,9 @@ Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and
 
 In Development the site uses the default SQL Server instance on the same PC with Windows sign-in, so the database needs no password. The connection is `ConnectionStrings:Portal` in `src/Itti.Inside.Web/appsettings.Development.json`.
 
-Passwords never go in the project or in source control. Save the two demo passwords once in your own user secrets instead. Run these in PowerShell, with your own values in place of the capitals:
+Passwords never go in the project or in source control. Save the admin password once in your own user secrets instead. Run this in PowerShell, with your own value in place of the capitals:
 
 ```bash
-dotnet user-secrets set "Authentication:Demo:Password" 'EMPLOYEE_PASSWORD' --project src/Itti.Inside.Web
 dotnet user-secrets set "Authentication:Admin:Password" 'ADMIN_PASSWORD' --project src/Itti.Inside.Web
 ```
 
@@ -33,7 +32,7 @@ Then start the site:
 dotnet run --project src/Itti.Inside.Web --launch-profile http
 ```
 
-Open <http://localhost:5010>. The demo user IDs are in `src/Itti.Inside.Web/appsettings.Development.json`, under `Authentication:Demo` (employee) and `Authentication:Admin`. Their passwords are the ones you saved above.
+Open <http://localhost:5010>: the landing page opens straight away. To update it, open <http://localhost:5010/master> and sign in with the admin user ID from `src/Itti.Inside.Web/appsettings.Development.json`, under `Authentication:Admin`, and the password you saved above.
 
 The first run creates the `IttiInsidePortal` database and copies the starting content into it from `Seed/portal-content.json`. It creates only that database and leaves any others on the server alone. After that, the database is what counts: changing the seed file no longer changes the site.
 
@@ -49,21 +48,22 @@ dotnet test
 
 The admin keeps the portal up to date on the master page, which has a section for everything on the landing page: Hero Slides, Latest News, CEO's Desk, Customer Feedback, Birthdays, Rockstar Awards, Wedding Bells and New Born. Every employee sees each save on the main page straight away.
 
-Everyone uses the same sign-in page, `/account/login`. The account decides where it leads:
+Only admins sign in. Everyone else opens the landing page without a sign-in page:
 
-| | Employee account | Admin account |
+| | Visitor | Admin |
 | --- | --- | --- |
-| Role | `Employee` | `Admin` |
-| After sign-in | The main page | The master page |
-| Can open | The full portal | Only the master page |
-| Header | The full menu | Master and Logout |
-| Elsewhere | Master pages show Access Denied | Portal pages go back to the master page |
+| Signs in | Never | At `/master`, which leads to the Admin Sign In page, `/account/login` |
+| Can open | The landing page and the portal pages | The master page, and the portal pages like everyone else |
+| Header | The full menu | Master and Logout on the master pages, the full menu elsewhere |
+| Logout in the header | Goes to the current intranet's logout page | On the master pages, ends the admin session |
 
-A session holds one role. An account with both roles signs in as admin, so give admins and employees separate accounts.
+The portal controllers say `[AllowAnonymous]`. Every other page, the master pages included, needs an admin session, so a new controller stays protected until it is opened up on purpose.
+
+The demo also has an optional employee account, `Authentication:Demo`. It is switched off unless `Authentication:Demo:UserId` is set, and it opens nothing extra.
 
 On the main page, the list cards page through their items with previous and next buttons: 2 feedback entries, 5 birthdays, 2 awards and 2 announcements at a time. The buttons appear only when a card has more than one page. The main page loads the newest 10 feedback entries and 12 awards. To change these numbers, edit `data-page-size` in the card's view and the constants in `HomeDashboardService`.
 
-In the demo, the accounts are `Authentication:Demo` (employee) and `Authentication:Admin`. A real sign-in must give each person the `PortalRoles.Employee` and `PortalRoles.Admin` roles they should have, in `AuthenticatedUser.Roles`.
+In the demo, the admin account is `Authentication:Admin`. A real sign-in must give the people who update the portal the `PortalRoles.Admin` role, in `AuthenticatedUser.Roles`.
 
 Each change is logged with the user ID of the person who made it.
 
@@ -109,7 +109,7 @@ The cookie session, sign-in rate limit and page protection stay as they are.
 
 ### Header menu
 
-The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. Each menu item needs a matching entry in `pages`. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
+The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. A path that starts with `/` is a page on this site and needs a matching entry in `pages`. A full `https://` address goes to that site: Applications, the two QA items and Logout go to the pages of the current intranet, `inside.itti.com`. The Applications and QA placeholder pages are still in `pages`, but nothing links to them. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
 
 ### Inner pages
 
@@ -121,10 +121,10 @@ Everything except Home and Applications is rendered by `PagesController.Show` fr
 
 ## Security already in place
 
-- Every page requires sign-in unless it opts out with `[AllowAnonymous]`.
+- The portal pages are open on purpose, with `[AllowAnonymous]`. Every other page needs an admin session.
 - Sign-in cookies are `HttpOnly`, `Secure` outside Development, and `SameSite=Lax`.
-- All form posts carry anti-forgery tokens, including Logout.
-- The master page has its own admin sign-in and needs the `Admin` role. Every form is checked on the server.
+- All form posts carry anti-forgery tokens, including the admin Logout.
+- The master page needs the `Admin` role. Every form is checked on the server.
 - Text typed into the master page is shown as plain text, so it cannot run as code on the landing page.
 - Sign-in is limited to 10 attempts a minute per IP address, and return URLs are checked to block open redirects.
 - A strict Content Security Policy allows no inline or third-party scripts or styles.
@@ -141,16 +141,16 @@ The app reads settings from `appsettings.json`, environment variables and any ot
 
 ### Demo server for review
 
-Use `Staging`, because the demo sign-in does not run in `Production`. Set the database and the two demo accounts with environment variables:
+Use `Staging`, because the demo sign-in does not run in `Production`. Set the database and the admin account with environment variables:
 
 ```bash
 ASPNETCORE_ENVIRONMENT=Staging
 ConnectionStrings__Portal=<your SQL Server connection string>
-Authentication__Demo__UserId=<choose one>
-Authentication__Demo__Password=<choose one>
 Authentication__Admin__UserId=<choose one>
 Authentication__Admin__Password=<choose one>
 ```
+
+The site also runs as an IIS application under another site, for example at `/inside` under the current intranet. Its links, cookies and sign-in then stay under `/inside`.
 
 ### Database
 
@@ -177,7 +177,7 @@ The starting content is copied only outside Production. In Production the site s
 
 ```bash
 docker build -t itti-inside .
-docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Staging -e ConnectionStrings__Portal="<your SQL Server connection string>" -e Authentication__Demo__UserId=<choose one> -e Authentication__Demo__Password=<choose one> -e Authentication__Admin__UserId=<choose one> -e Authentication__Admin__Password=<choose one> itti-inside
+docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Staging -e ConnectionStrings__Portal="<your SQL Server connection string>" -e Authentication__Admin__UserId=<choose one> -e Authentication__Admin__Password=<choose one> itti-inside
 ```
 
 ### Go-live checklist

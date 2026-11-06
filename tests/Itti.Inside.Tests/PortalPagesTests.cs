@@ -22,6 +22,47 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     }
 
     [Theory]
+    [InlineData("Applications", "https://inside.itti.com/application-wp.asp")]
+    [InlineData("Quality Management System", "https://inside.itti.com/qms_new/index.asp")]
+    [InlineData("Process Asset Library", "https://inside.itti.com/PALibrary/default.asp")]
+    [InlineData("Logout", "https://inside.itti.com/Logout.asp")]
+    public async Task Menu_links_go_to_the_current_intranet(string menuItem, string address)
+    {
+        Assert.Contains($"href=\"{address}\">{menuItem}</a>", await HeaderAsync(), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("Home", "/")]
+    [InlineData("Travel desk", "/hr/travel-desk")]
+    public async Task Menu_links_to_this_site_stay_on_it(string menuItem, string path)
+    {
+        Assert.Contains($"href=\"{path}\">{menuItem}</a>", await HeaderAsync(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Landing_page_opens_straight_away_without_a_sign_in_page()
+    {
+        using var client = factory.CreateBrowser();
+
+        using var response = await client.GetAsync(new Uri("/", UriKind.Relative));
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Welcome to ITTI Inside", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("type=\"password\"", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Landing_page_has_no_master_link()
+    {
+        using var client = factory.CreateBrowser();
+
+        var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
+
+        Assert.DoesNotContain("/master", html, StringComparison.Ordinal);
+    }
+
+    [Theory]
     [InlineData("CEO&#x27;s Desk")]
     [InlineData("Customer Feedback")]
     [InlineData("Suggestion Box")]
@@ -54,7 +95,6 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     public async Task Landing_page_keeps_every_existing_section(string section)
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
 
@@ -74,10 +114,9 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("/ceo-desk")]
     [InlineData("/customer-feedback")]
     [InlineData("/rockstar-awards")]
-    public async Task Dummy_pages_open_for_a_signed_in_user(string path)
+    public async Task Portal_pages_open_without_signing_in(string path)
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         using var response = await client.GetAsync(new Uri(path, UriKind.Relative));
 
@@ -88,7 +127,6 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     public async Task Unknown_page_shows_the_not_found_page()
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         using var response = await client.GetAsync(new Uri("/no/such/page", UriKind.Relative));
         var html = await response.Content.ReadAsStringAsync();
@@ -126,7 +164,6 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     private async Task<string> MainPageAsync()
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         return await client.GetStringAsync(new Uri("/", UriKind.Relative));
     }
@@ -145,7 +182,6 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     private async Task<string> HeaderAsync()
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
 
         var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
         var start = html.IndexOf("<header class=\"site-header\">", StringComparison.Ordinal);

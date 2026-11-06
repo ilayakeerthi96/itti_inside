@@ -64,30 +64,18 @@ public static class ServiceCollectionExtensions
                 options.LogoutPath = "/account/logout";
                 options.AccessDeniedPath = "/error/403";
                 options.SlidingExpiration = true;
-                options.Events.OnRedirectToAccessDenied = RedirectToAccessDenied;
             });
 
         services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
             .Configure<IOptions<PortalAuthenticationOptions>>((cookie, portal) =>
                 cookie.ExpireTimeSpan = TimeSpan.FromMinutes(portal.Value.SessionMinutes));
 
-        // The portal pages need an employee session unless they opt out with [AllowAnonymous] or
-        // name their own policy. The master pages need an admin session, which holds nothing else.
+        // The portal pages open without signing in: everyone on the intranet sees them, so their
+        // controllers say [AllowAnonymous]. Anything that doesn't say so, the master pages included,
+        // needs an admin session. A new page therefore starts out protected until it is opened up.
         services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireRole(PortalRoles.Employee).Build())
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireRole(PortalRoles.Admin).Build())
             .AddPolicy(PortalPolicies.ManageContent, policy => policy.RequireRole(PortalRoles.Admin));
-    }
-
-    // An admin on a portal page goes back to the master page. Anyone else turned away,
-    // such as an employee on a master page, sees the Access Denied page.
-    private static Task RedirectToAccessDenied(RedirectContext<CookieAuthenticationOptions> context)
-    {
-        var target = context.HttpContext.User.IsInRole(PortalRoles.Admin)
-            ? $"{context.Request.PathBase}/master"
-            : context.RedirectUri;
-
-        context.Response.Redirect(target);
-        return Task.CompletedTask;
     }
 
     private static void AddSignInRateLimit(this IServiceCollection services, IConfiguration configuration)

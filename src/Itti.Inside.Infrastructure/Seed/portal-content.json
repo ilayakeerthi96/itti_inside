@@ -142,14 +142,16 @@
     ],
     "closing": "Hearty congratulations on behalf of all ITTIans."
   },
+  // A path starting with / is a page on this site. A full https:// address goes to that site,
+  // here the pages of the current intranet.
   "menu": [
     { "title": "Home", "path": "/" },
-    { "title": "Applications", "path": "/applications" },
+    { "title": "Applications", "path": "https://inside.itti.com/application-wp.asp" },
     {
       "title": "QA",
       "children": [
-        { "title": "Quality Management System", "path": "/qa/quality-management-system" },
-        { "title": "Process Asset Library", "path": "/qa/process-asset-library" }
+        { "title": "Quality Management System", "path": "https://inside.itti.com/qms_new/index.asp" },
+        { "title": "Process Asset Library", "path": "https://inside.itti.com/PALibrary/default.asp" }
       ]
     },
     {
@@ -161,7 +163,8 @@
         { "title": "Useful Links", "path": "/hr/useful-links" },
         { "title": "Travel desk", "path": "/hr/travel-desk" }
       ]
-    }
+    },
+    { "title": "Logout", "path": "https://inside.itti.com/Logout.asp" }
   ],
   "pages": [
     { "path": "/qa/quality-management-system", "title": "Quality Management System", "section": "QA", "summary": "The quality management system documents will appear here." },

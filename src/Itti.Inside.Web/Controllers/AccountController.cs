@@ -12,8 +12,9 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Itti.Inside.Web.Controllers;
 
 /// <summary>
-/// One sign-in page for everyone. The account decides where it leads: an admin account opens a
-/// session that holds only the master page, and an employee account opens the portal.
+/// The sign-in page for the admins who keep the landing page up to date. Everyone else opens the
+/// landing page straight away and never sees this page. An admin account leads to the master page;
+/// the optional employee account of the demo leads back to the landing page.
 /// </summary>
 [Route("account")]
 public sealed partial class AccountController(
@@ -103,11 +104,16 @@ public sealed partial class AccountController(
     private string SafeReturnUrl(string? returnUrl) =>
         Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content(PortalHome);
 
-    // An admin session holds only the master page, so any other return address leads there.
-    private string AdminReturnUrl(string? returnUrl) =>
-        Url.IsLocalUrl(returnUrl) && returnUrl.StartsWith("/master", StringComparison.OrdinalIgnoreCase)
+    // An admin signs in to work on the master page, so any other return address leads there.
+    // The comparison includes the path base, for a site that runs as an IIS application such as /inside.
+    private string AdminReturnUrl(string? returnUrl)
+    {
+        var masterHome = Url.Content(MasterHome);
+
+        return Url.IsLocalUrl(returnUrl) && returnUrl.StartsWith(masterHome, StringComparison.OrdinalIgnoreCase)
             ? returnUrl
-            : Url.Content(MasterHome);
+            : masterHome;
+    }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Failed sign-in attempt from {ClientAddress}.")]
     private static partial void LogSignInFailed(ILogger logger, string? clientAddress);

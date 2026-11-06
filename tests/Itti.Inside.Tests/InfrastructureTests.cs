@@ -1,4 +1,5 @@
 using Itti.Inside.Application.Identity;
+using Itti.Inside.Domain.Navigation;
 using Itti.Inside.Infrastructure;
 using Itti.Inside.Infrastructure.Identity;
 using Itti.Inside.Infrastructure.Seed;
@@ -21,15 +22,43 @@ public sealed class SeedDataTests
             .SelectMany(item => (item.Children ?? []).Append(item))
             .Select(item => item.Path)
             .OfType<string>()
-            .Where(path => path is not "/" and not "/applications");
+            .Where(path => path is not "/" and not "/applications" && path.StartsWith('/'));
 
         Assert.All(links, path => Assert.Contains(Seed.Pages, page => page.Path == path));
+    }
+
+    [Fact]
+    public void Menu_links_to_other_sites_use_https()
+    {
+        var links = Seed.Menu
+            .SelectMany(item => (item.Children ?? []).Append(item))
+            .Select(item => item.Path)
+            .OfType<string>()
+            .Where(path => !path.StartsWith('/'));
+
+        Assert.NotEmpty(links);
+        Assert.All(links, path => Assert.StartsWith("https://", path, StringComparison.Ordinal));
     }
 
     [Fact]
     public void Every_application_tile_has_a_page_behind_it()
     {
         Assert.All(Seed.Applications, application => Assert.Contains(Seed.Pages, page => page.Path == application.Path));
+    }
+}
+
+public sealed class NavigationItemTests
+{
+    [Theory]
+    [InlineData("https://inside.itti.com/Logout.asp", true)]
+    [InlineData("http://inside.itti.com/", true)]
+    [InlineData("/hr/travel-desk", false)]
+    [InlineData("/", false)]
+    [InlineData("javascript:alert(1)", false)]
+    [InlineData(null, false)]
+    public void Knows_which_links_go_to_another_site(string? path, bool isExternal)
+    {
+        Assert.Equal(isExternal, new NavigationItem("Item", path, []).IsExternal);
     }
 }
 

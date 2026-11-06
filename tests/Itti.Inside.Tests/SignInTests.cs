@@ -5,27 +5,36 @@ namespace Itti.Inside.Tests;
 public sealed class SignInTests(PortalWebFactory factory) : IClassFixture<PortalWebFactory>
 {
     [Fact]
-    public async Task Anonymous_visitor_is_sent_to_the_sign_in_page()
+    public async Task Anonymous_visitor_sees_the_landing_page()
     {
         using var client = factory.CreateBrowser();
 
         using var response = await client.GetAsync(new Uri("/", UriKind.Relative));
 
-        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.StartsWith("/account/login", response.Headers.Location?.PathAndQuery, StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task Correct_credentials_open_the_landing_page()
+    public async Task Sign_in_page_is_for_admins()
+    {
+        using var client = factory.CreateBrowser();
+
+        var html = await client.GetStringAsync(new Uri("/account/login", UriKind.Relative));
+
+        Assert.Contains("Admin Sign In", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Correct_employee_credentials_lead_back_to_the_landing_page()
     {
         using var client = factory.CreateBrowser();
 
         using var signIn = await client.PostSignInAsync(PortalWebFactory.UserId, PortalWebFactory.Password);
-        var home = await client.GetStringAsync(new Uri("/", UriKind.Relative));
+        using var home = await client.GetAsync(new Uri("/", UriKind.Relative));
 
         Assert.Equal(HttpStatusCode.Redirect, signIn.StatusCode);
         Assert.Equal("/", signIn.Headers.Location?.OriginalString);
-        Assert.Contains("Welcome back, Test User", home, StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.OK, home.StatusCode);
     }
 
     [Fact]
@@ -103,17 +112,13 @@ public sealed class SignInTests(PortalWebFactory factory) : IClassFixture<Portal
     }
 
     [Fact]
-    public async Task Logout_ends_the_session()
+    public async Task Logout_ends_the_admin_session()
     {
         using var client = factory.CreateBrowser();
-        await client.SignInAsync();
+        await client.SignInAsAdminAsync();
 
-        var token = await client.GetAntiforgeryTokenAsync("/");
-        using var logout = await client.PostAsync(new Uri("/account/logout", UriKind.Relative), new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["__RequestVerificationToken"] = token,
-        }));
-        using var afterLogout = await client.GetAsync(new Uri("/", UriKind.Relative));
+        using var logout = await client.PostFormAsync("/master/ceo-desk", "/account/logout");
+        using var afterLogout = await client.GetAsync(new Uri("/master/ceo-desk", UriKind.Relative));
 
         Assert.Equal(HttpStatusCode.Redirect, logout.StatusCode);
         Assert.Equal(HttpStatusCode.Redirect, afterLogout.StatusCode);

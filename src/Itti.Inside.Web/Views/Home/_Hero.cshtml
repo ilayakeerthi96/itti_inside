@@ -1,6 +1,7 @@
 @model IReadOnlyList<HeroSlide>
 @{
-    var greeting = $"Welcome back, {User.Identity?.Name}";
+    // Visitors don't sign in, so the page doesn't know their name.
+    const string greeting = "Welcome to ITTI Inside";
 }
 
 <section class="hero" aria-label="Highlights">

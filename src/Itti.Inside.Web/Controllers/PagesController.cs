@@ -1,9 +1,14 @@
 using Itti.Inside.Application.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Itti.Inside.Web.Controllers;
 
-/// <summary>The dummy pages behind the header menu. Give a page its own controller as it gets built.</summary>
+/// <summary>
+/// The dummy pages behind the header menu, open without signing in like the landing page.
+/// Give a page its own controller as it gets built.
+/// </summary>
+[AllowAnonymous]
 public sealed class PagesController(INavigationRepository navigation) : Controller
 {
     [HttpGet("applications")]
