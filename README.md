@@ -1,6 +1,6 @@
 # ITTI Inside
 
-The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA and Logout menu items go to the pages of the current intranet. Admins sign in to the master page to update the landing page, and changes show straight away. This version is a prototype: the admin sign-in is a demo, the starting content is dummy data, and the HR pages are placeholders.
+The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA, HR and Logout menu items and the CEO's Desk button go to the pages of the current intranet, in a new tab. Admins sign in to the master page to update the landing page, and changes show straight away. This version is a prototype: the admin sign-in is a demo, and the starting content is dummy data.
 
 ## Stack
 
@@ -109,7 +109,13 @@ The cookie session, sign-in rate limit and page protection stay as they are.
 
 ### Header menu
 
-The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. A path that starts with `/` is a page on this site and needs a matching entry in `pages`. A full `https://` address goes to that site: Applications, the two QA items and Logout go to the pages of the current intranet, `inside.itti.com`. The Applications and QA placeholder pages are still in `pages`, but nothing links to them. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
+The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. A path that starts with `/` is a page on this site and needs a matching entry in `pages`. A full `http://` or `https://` address goes to that site: Applications, the QA and HR items and Logout go to the pages of the current intranet, on `inside.itti.com` and `inside.itti.com:2020`. The Applications, QA and HR placeholder pages are still in `pages`, but nothing links to them. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
+
+### Links and new tabs
+
+Every link that leaves the landing page opens in a new tab, so the landing page stays open behind it: the menu items except Home, the CEO's Desk **More** button, **View all feedback** and the Rockstar Awards **Read More**. In a view, add `new-tab="true"` to an `<a>` for the same behaviour. `NewTabTagHelper` adds `target="_blank"`, `rel="noopener"` and a note for screen readers. Links back to Home and the links on the master pages stay in the same tab.
+
+The CEO's Desk **More** button goes to `Links:CeoDesk` in `appsettings.json`, the CEO's page on the current intranet. Because it is a setting, the server can point it elsewhere without a new build, for example with `Links__CeoDesk` in `web.config`. Leave it empty to use this site's own CEO's Desk page.
 
 ### Inner pages
 

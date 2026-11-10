@@ -1,4 +1,10 @@
+@using Microsoft.Extensions.Options
 @model CeoMessage
+@inject IOptions<PortalLinkOptions> Links
+@{
+    // The full message lives on the current intranet. Without that address, use this site's page.
+    var moreHref = Links.Value.CeoDesk.Length > 0 ? Links.Value.CeoDesk : Url.Content("~/ceo-desk");
+}
 
 <section class="panel ceo" id="ceo-desk" aria-labelledby="ceo-desk-title">
     <div class="ceo__art">
@@ -7,6 +13,6 @@
     <div class="ceo__body">
         <h2 class="panel__title" id="ceo-desk-title">CEO's Desk</h2>
         <p class="ceo__excerpt">@Model.Excerpt</p>
-        <a class="btn-portal" href="~/ceo-desk">More <icon name="arrow-right" /></a>
+        <a class="btn-portal" href="@moreHref" new-tab="true">More <icon name="arrow-right" /></a>
     </div>
 </section>

@@ -25,18 +25,52 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("Applications", "https://inside.itti.com/application-wp.asp")]
     [InlineData("Quality Management System", "https://inside.itti.com/qms_new/index.asp")]
     [InlineData("Process Asset Library", "https://inside.itti.com/PALibrary/default.asp")]
+    [InlineData("Corporate Medical Insurance", "http://inside.itti.com:2020/inside/corporate-medical-insurance/")]
+    [InlineData("HOLIDAYS – 2026", "http://inside.itti.com:2020/inside/holidays-2021/")]
+    [InlineData("Organization Training", "http://inside.itti.com:2020/inside/training-plan/")]
+    [InlineData("Useful Links", "http://inside.itti.com:2020/inside/useful-links/")]
+    [InlineData("Travel desk", "http://inside.itti.com:2020/inside/traveldesk/")]
     [InlineData("Logout", "https://inside.itti.com/Logout.asp")]
-    public async Task Menu_links_go_to_the_current_intranet(string menuItem, string address)
+    public async Task Menu_links_go_to_the_current_intranet_in_a_new_tab(string menuItem, string address)
     {
-        Assert.Contains($"href=\"{address}\">{menuItem}</a>", await HeaderAsync(), StringComparison.Ordinal);
+        var link = PageLinks.Find(await HeaderAsync(), menuItem);
+
+        Assert.Equal(address, link.Href);
+        Assert.True(link.OpensInNewTab, $"{menuItem} should open in a new tab.");
+    }
+
+    [Fact]
+    public async Task Home_stays_in_the_same_tab()
+    {
+        var link = PageLinks.Find(await HeaderAsync(), "Home");
+
+        Assert.Equal("/", link.Href);
+        Assert.False(link.OpensInNewTab);
     }
 
     [Theory]
-    [InlineData("Home", "/")]
-    [InlineData("Travel desk", "/hr/travel-desk")]
-    public async Task Menu_links_to_this_site_stay_on_it(string menuItem, string path)
+    [InlineData("More", "http://inside.itti.com:2020/inside/md-desk-2/")]
+    [InlineData("View all feedback", "/customer-feedback")]
+    [InlineData("Read More", "/rockstar-awards")]
+    public async Task Landing_page_links_open_in_a_new_tab(string text, string address)
     {
-        Assert.Contains($"href=\"{path}\">{menuItem}</a>", await HeaderAsync(), StringComparison.Ordinal);
+        using var client = factory.CreateBrowser();
+        var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
+
+        var link = PageLinks.Find(html[html.IndexOf("<main", StringComparison.Ordinal)..], text);
+
+        Assert.Equal(address, link.Href);
+        Assert.True(link.OpensInNewTab, $"{text} should open in a new tab.");
+    }
+
+    [Fact]
+    public async Task Screen_readers_hear_that_a_link_opens_a_new_tab()
+    {
+        using var client = factory.CreateBrowser();
+        var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
+
+        Assert.Contains("<span id=\"new-tab-note\" hidden>Opens in a new tab</span>", html, StringComparison.Ordinal);
+        Assert.Contains("aria-describedby=\"new-tab-note\"", PageLinks.Find(html, "Applications").Tag, StringComparison.Ordinal);
     }
 
     [Fact]

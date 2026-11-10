@@ -6,6 +6,9 @@
 
     // Menu entries either open a page on this site or go to another site, such as the current intranet.
     string Href(NavigationItem item) => item.IsExternal ? item.Path! : Url.Content($"~{item.Path}");
+
+    // Every entry except Home opens in a new tab, so the landing page stays open behind it.
+    static bool OpensInNewTab(NavigationItem item) => item.Path != "/";
 }
 
 <header class="site-header">
@@ -51,7 +54,7 @@
                                         {
                                             <li>
                                                 <a class="dropdown-item @(Model.IsActive(child) ? "active" : null)"
-                                                   href="@Href(child)">@child.Title</a>
+                                                   href="@Href(child)" new-tab="@OpensInNewTab(child)">@child.Title</a>
                                             </li>
                                         }
                                     </ul>
@@ -62,7 +65,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link @(isActive ? "active" : null)"
                                        aria-current="@(isActive ? "page" : null)"
-                                       href="@Href(item)">@item.Title</a>
+                                       href="@Href(item)" new-tab="@OpensInNewTab(item)">@item.Title</a>
                                 </li>
                             }
                         }

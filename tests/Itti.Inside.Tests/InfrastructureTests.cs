@@ -28,16 +28,19 @@ public sealed class SeedDataTests
     }
 
     [Fact]
-    public void Menu_links_to_other_sites_use_https()
+    public void Menu_links_to_other_sites_are_full_web_addresses()
     {
         var links = Seed.Menu
             .SelectMany(item => (item.Children ?? []).Append(item))
             .Select(item => item.Path)
             .OfType<string>()
-            .Where(path => !path.StartsWith('/'));
+            .Where(path => !path.StartsWith('/'))
+            .ToList();
 
         Assert.NotEmpty(links);
-        Assert.All(links, path => Assert.StartsWith("https://", path, StringComparison.Ordinal));
+        Assert.All(links, path => Assert.True(
+            path.StartsWith("https://", StringComparison.Ordinal) || path.StartsWith("http://", StringComparison.Ordinal),
+            $"{path} is not a full web address."));
     }
 
     [Fact]

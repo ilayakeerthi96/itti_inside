@@ -142,8 +142,8 @@
     ],
     "closing": "Hearty congratulations on behalf of all ITTIans."
   },
-  // A path starting with / is a page on this site. A full https:// address goes to that site,
-  // here the pages of the current intranet.
+  // A path starting with / is a page on this site. A full http:// or https:// address goes to that
+  // site, here the pages of the current intranet. Every entry except Home opens in a new tab.
   "menu": [
     { "title": "Home", "path": "/" },
     { "title": "Applications", "path": "https://inside.itti.com/application-wp.asp" },
@@ -157,11 +157,11 @@
     {
       "title": "HR",
       "children": [
-        { "title": "Corporate Medical Insurance", "path": "/hr/corporate-medical-insurance" },
-        { "title": "HOLIDAYS – 2026", "path": "/hr/holidays-2026" },
-        { "title": "Organization Training", "path": "/hr/organization-training" },
-        { "title": "Useful Links", "path": "/hr/useful-links" },
-        { "title": "Travel desk", "path": "/hr/travel-desk" }
+        { "title": "Corporate Medical Insurance", "path": "http://inside.itti.com:2020/inside/corporate-medical-insurance/" },
+        { "title": "HOLIDAYS – 2026", "path": "http://inside.itti.com:2020/inside/holidays-2021/" },
+        { "title": "Organization Training", "path": "http://inside.itti.com:2020/inside/training-plan/" },
+        { "title": "Useful Links", "path": "http://inside.itti.com:2020/inside/useful-links/" },
+        { "title": "Travel desk", "path": "http://inside.itti.com:2020/inside/traveldesk/" }
       ]
     },
     { "title": "Logout", "path": "https://inside.itti.com/Logout.asp" }
