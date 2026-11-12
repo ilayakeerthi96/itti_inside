@@ -1,0 +1,48 @@
+@model CelebrationPageViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var announcements = Model.Board.Announcements;
+}
+
+<partial name="_PageBanner" model="@((string?)null)" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <section class="panel celebration celebration--@Model.Art detail" aria-labelledby="detail-title"
+                 data-pager data-page-size="10">
+            <div class="celebration__banner">
+                <img src="~/images/art/@(Model.Art).svg" alt="" width="120" height="120" />
+            </div>
+            <div class="celebration__body">
+                <div class="panel__head">
+                    <div>
+                        <h2 class="panel__title" id="detail-title">All @Model.Title announcements</h2>
+                        <p class="panel__subtitle">@announcements.Count @(announcements.Count == 1 ? "announcement" : "announcements"), newest first</p>
+                    </div>
+                    <partial name="~/Views/Home/_PagerControls.cshtml" model="@("announcements")" />
+                </div>
+
+                @if (announcements.Count == 0)
+                {
+                    <p class="detail__empty">No announcements yet.</p>
+                }
+                else
+                {
+                    <ul class="celebration__list detail__list" data-pager-list>
+                        @foreach (var announcement in announcements)
+                        {
+                            <li data-pager-item>
+                                <time class="detail__date" datetime="@announcement.PostedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                                    @announcement.PostedOn.ToString("d MMMM yyyy", CultureInfo.InvariantCulture)
+                                </time>
+                                <span>@announcement.Text</span>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <p class="celebration__closing">@Model.Board.Closing</p>
+            </div>
+        </section>
+    </div>
+</div>

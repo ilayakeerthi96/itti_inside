@@ -22,7 +22,7 @@ public sealed class PortalSeedData
 
     public required IReadOnlyList<NewsItem> LatestNews { get; init; }
 
-    public required CeoMessage CeoMessage { get; init; }
+    public required SeedCeoDeskPost CeoDesk { get; init; }
 
     public required IReadOnlyList<CustomerFeedbackEntry> CustomerFeedback { get; init; }
 
@@ -30,9 +30,15 @@ public sealed class PortalSeedData
 
     public required IReadOnlyList<RockstarAward> RockstarAwards { get; init; }
 
-    public required CelebrationBoard WeddingBells { get; init; }
+    public required SeedCelebrationBoard WeddingBells { get; init; }
 
-    public required CelebrationBoard NewBorns { get; init; }
+    public required SeedCelebrationBoard NewBorns { get; init; }
+
+    public required string HolidayNotes { get; init; }
+
+    public required IReadOnlyList<TrainingSession> TrainingSessions { get; init; }
+
+    public required MedicalInsurancePolicy MedicalInsurance { get; init; }
 
     public required IReadOnlyList<SeedMenuItem> Menu { get; init; }
 
@@ -49,6 +55,12 @@ public sealed class PortalSeedData
             ?? throw new InvalidOperationException($"Embedded resource '{ResourceName}' is empty.");
     }
 }
+
+/// <summary>The first CEO's Desk message, dated when it is added.</summary>
+public sealed record SeedCeoDeskPost(string Title, string Message);
+
+/// <summary>A congratulations board as written in the seed file: plain lines, dated when they are added.</summary>
+public sealed record SeedCelebrationBoard(IReadOnlyList<string> Announcements, string Closing);
 
 /// <summary>A menu entry as written in the seed file, where children are optional.</summary>
 public sealed record SeedMenuItem(string Title, string? Path, IReadOnlyList<SeedMenuItem>? Children)

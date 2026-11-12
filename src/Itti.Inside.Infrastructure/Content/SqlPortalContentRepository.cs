@@ -15,8 +15,11 @@ public sealed class SqlPortalContentRepository(PortalDbContext context) : IPorta
     public async Task<IReadOnlyList<NewsItem>> GetLatestNewsAsync(CancellationToken cancellationToken) =>
         await context.NewsItems.OrderByDescending(item => item.Id).ToListAsync(cancellationToken);
 
-    public async Task<CeoMessage> GetCeoMessageAsync(CancellationToken cancellationToken) =>
-        new(await GetTextAsync(PortalTextKey.CeoMessage, cancellationToken));
+    public async Task<IReadOnlyList<CeoDeskPost>> GetCeoDeskPostsAsync(CancellationToken cancellationToken) =>
+        await context.CeoDeskPosts
+            .OrderByDescending(post => post.PostedOn)
+            .ThenByDescending(post => post.Id)
+            .ToListAsync(cancellationToken);
 
     public Task<PagedResult<CustomerFeedbackEntry>> GetCustomerFeedbackAsync(int page, int pageSize, CancellationToken cancellationToken) =>
         context.CustomerFeedback
@@ -24,11 +27,18 @@ public sealed class SqlPortalContentRepository(PortalDbContext context) : IPorta
             .ThenByDescending(entry => entry.Id)
             .ToPageAsync(page, pageSize, cancellationToken);
 
+    public async Task<IReadOnlyList<CustomerFeedbackEntry>> GetAllCustomerFeedbackAsync(CancellationToken cancellationToken) =>
+        await context.CustomerFeedback
+            .OrderByDescending(entry => entry.Date)
+            .ThenByDescending(entry => entry.Id)
+            .ToListAsync(cancellationToken);
+
     public async Task<BirthdayCalendar> GetBirthdaysAsync(CancellationToken cancellationToken)
     {
         var period = await GetTextAsync(PortalTextKey.BirthdaysPeriod, cancellationToken);
         var entries = await context.Birthdays
-            .OrderBy(entry => entry.Day)
+            .OrderByDescending(entry => entry.PostedOn)
+            .ThenBy(entry => entry.Day)
             .ThenBy(entry => entry.Id)
             .ToListAsync(cancellationToken);
 
@@ -41,12 +51,19 @@ public sealed class SqlPortalContentRepository(PortalDbContext context) : IPorta
             .ThenByDescending(award => award.Id)
             .ToPageAsync(page, pageSize, cancellationToken);
 
+    public async Task<IReadOnlyList<RockstarAward>> GetAllRockstarAwardsAsync(CancellationToken cancellationToken) =>
+        await context.RockstarAwards
+            .OrderByDescending(award => award.PublishedOn)
+            .ThenByDescending(award => award.Id)
+            .ToListAsync(cancellationToken);
+
     public async Task<CelebrationBoard> GetWeddingBellsAsync(CancellationToken cancellationToken)
     {
         var closing = await GetTextAsync(PortalTextKey.WeddingBellsClosing, cancellationToken);
         var announcements = await context.WeddingAnnouncements
-            .OrderByDescending(item => item.Id)
-            .Select(item => item.Text)
+            .OrderByDescending(item => item.PostedOn)
+            .ThenByDescending(item => item.Id)
+            .Select(item => new CelebrationAnnouncement(item.Id, item.Text, item.PostedOn))
             .ToListAsync(cancellationToken);
 
         return new CelebrationBoard(announcements, closing);
@@ -56,12 +73,43 @@ public sealed class SqlPortalContentRepository(PortalDbContext context) : IPorta
     {
         var closing = await GetTextAsync(PortalTextKey.NewBornClosing, cancellationToken);
         var announcements = await context.NewBornAnnouncements
-            .OrderByDescending(item => item.Id)
-            .Select(item => item.Text)
+            .OrderByDescending(item => item.PostedOn)
+            .ThenByDescending(item => item.Id)
+            .Select(item => new CelebrationAnnouncement(item.Id, item.Text, item.PostedOn))
             .ToListAsync(cancellationToken);
 
         return new CelebrationBoard(announcements, closing);
     }
+
+    public async Task<IReadOnlyList<Holiday>> GetHolidaysAsync(CancellationToken cancellationToken) =>
+        await context.Holidays
+            .OrderBy(holiday => holiday.Date)
+            .ThenBy(holiday => holiday.Id)
+            .ToListAsync(cancellationToken);
+
+    public Task<string> GetHolidayNotesAsync(CancellationToken cancellationToken) =>
+        GetTextAsync(PortalTextKey.HolidayNotes, cancellationToken);
+
+    public async Task<IReadOnlyList<TrainingSession>> GetTrainingSessionsAsync(CancellationToken cancellationToken) =>
+        await context.TrainingSessions
+            .OrderBy(session => session.Date)
+            .ThenBy(session => session.Id)
+            .ToListAsync(cancellationToken);
+
+    public Task<MedicalInsurancePolicy?> GetMedicalInsuranceAsync(CancellationToken cancellationToken) =>
+        context.MedicalInsurancePolicies.OrderBy(policy => policy.Id).FirstOrDefaultAsync(cancellationToken);
+
+    public Task<PortalDocumentInfo?> GetDocumentInfoAsync(string key, CancellationToken cancellationToken) =>
+        context.PortalDocuments
+            .Where(document => document.Key == key)
+            .Select(document => new PortalDocumentInfo(document.Key, document.FileName, document.Content.Length, document.UploadedOn))
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<PortalDocument?> GetDocumentAsync(string key, CancellationToken cancellationToken) =>
+        context.PortalDocuments.FirstOrDefaultAsync(document => document.Key == key, cancellationToken);
+
+    public Task<PortalImage?> GetImageAsync(int id, CancellationToken cancellationToken) =>
+        context.PortalImages.FirstOrDefaultAsync(image => image.Id == id, cancellationToken);
 
     private async Task<string> GetTextAsync(PortalTextKey key, CancellationToken cancellationToken) =>
         await context.PortalTexts

@@ -1,0 +1,23 @@
+@* The picture field of a form whose item can have one. The form needs enctype="multipart/form-data". *@
+@model IImageForm
+
+<div class="master-field">
+    <label class="form-label" for="Form_Image">Picture</label>
+
+    @if (Model.ImageId is { } imageId)
+    {
+        <div class="master-image">
+            <img src="@Url.Content($"~/media/{imageId}")" alt="The current picture" width="120" height="120" />
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="Form_RemoveImage" name="Form.RemoveImage" value="true" />
+                <label class="form-check-label" for="Form_RemoveImage">Remove the picture</label>
+            </div>
+        </div>
+    }
+
+    <input class="form-control" type="file" id="Form_Image" name="Form.Image" accept="@ImageUpload.Accept" />
+    <div class="form-text">
+        Optional. A JPG, PNG or WebP picture up to 5 MB@(Model.ImageId is null ? "" : ". Choosing one replaces the current picture").
+    </div>
+    <span class="master-field__error" asp-validation-for="Image"></span>
+</div>

@@ -1,0 +1,109 @@
+@model HolidaysPageViewModel
+@{
+    ViewData["Title"] = $"Holidays – {Model.Year}";
+    var next = Model.Next;
+    var notes = TextDisplay.Lines(Model.Notes);
+}
+
+<partial name="_PageBanner" model="@("HR")" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <div class="detail-stack">
+            <section class="panel" aria-labelledby="holidays-title">
+                <div class="panel__head">
+                    <div>
+                        <h2 class="panel__title" id="holidays-title">List of holidays – @Model.Year</h2>
+                        <p class="panel__subtitle">ITTI Private Limited, Bangalore</p>
+                    </div>
+
+                    @if (Model.Years.Count > 1)
+                    {
+                        <nav class="year-links" aria-label="Other years">
+                            @foreach (var year in Model.Years)
+                            {
+                                <a class="year-links__link @(year == Model.Year ? "is-current" : null)"
+                                   aria-current="@(year == Model.Year ? "page" : null)"
+                                   href="@Url.Content($"~/hr/holidays?year={year}")" new-tab="true">@year</a>
+                            }
+                        </nav>
+                    }
+                </div>
+
+                @if (next is not null)
+                {
+                    <p class="holiday-next">
+                        <icon name="calendar" />
+                        <span>Next holiday: <strong>@next.Name</strong>, @next.Date.ToString("dddd d MMMM", CultureInfo.InvariantCulture)</span>
+                    </p>
+                }
+
+                @if (Model.Holidays.Count == 0)
+                {
+                    <p class="detail__empty">The holiday list for @Model.Year will appear here soon.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle holiday-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Holiday</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Day</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var index = 0; index < Model.Holidays.Count; index++)
+                                {
+                                    var holiday = Model.Holidays[index];
+                                    var isPast = holiday.Date < Model.Today;
+
+                                    <tr class="@(isPast ? "is-past" : null) @(holiday == next ? "is-next" : null)">
+                                        <td>@(index + 1)</td>
+                                        <td>
+                                            @holiday.Name
+                                            @if (holiday.IsOptional)
+                                            {
+                                                <span class="tag">Optional</span>
+                                            }
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <time datetime="@holiday.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                                                @holiday.Date.ToString("d MMM yyyy", CultureInfo.InvariantCulture)
+                                            </time>
+                                        </td>
+                                        <td>@holiday.Date.ToString("dddd", CultureInfo.InvariantCulture)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (Model.Document is { } document)
+                {
+                    <div class="action-row">
+                        <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")" new-tab="true">
+                            <icon name="download" /> Download the holiday list (@FileSizeDisplay.Format(document.Size))
+                        </a>
+                    </div>
+                }
+            </section>
+
+            @if (notes.Count > 0)
+            {
+                <section class="panel" aria-labelledby="notes-title">
+                    <h2 class="panel__title" id="notes-title">Important notes</h2>
+                    <ul class="note-list">
+                        @foreach (var note in notes)
+                        {
+                            <li>@note</li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+    </div>
+</div>

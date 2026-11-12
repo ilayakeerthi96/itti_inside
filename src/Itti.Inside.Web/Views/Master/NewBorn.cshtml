@@ -15,6 +15,13 @@
             <span class="master-field__error" asp-validation-for="Form.Text"></span>
         </div>
 
+        <div class="master-field master-field--date">
+            <label class="form-label" asp-for="Form.PostedOn"></label>
+            <input class="form-control" asp-for="Form.PostedOn" required />
+            <span class="master-field__error" asp-validation-for="Form.PostedOn"></span>
+            <div class="form-text">Items posted this month show as new on the main page. When nothing was posted this month, it shows the last 2.</div>
+        </div>
+
         <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
     </form>
 </section>
@@ -32,6 +39,7 @@
             <table class="table align-middle master-table">
                 <thead>
                     <tr>
+                        <th scope="col">Posted on</th>
                         <th scope="col">Announcement</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
@@ -40,6 +48,7 @@
                     @foreach (var item in Model.Items)
                     {
                         <tr>
+                            <td class="text-nowrap">@item.PostedOn.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
                             <td>@item.Text</td>
                             <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
                         </tr>

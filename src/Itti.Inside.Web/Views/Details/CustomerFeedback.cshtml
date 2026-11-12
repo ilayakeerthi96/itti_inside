@@ -1,0 +1,43 @@
+@model IReadOnlyList<CustomerFeedbackEntry>
+@{
+    ViewData["Title"] = "Customer Feedback";
+}
+
+<partial name="_PageBanner" model="@((string?)null)" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <section class="panel detail" aria-labelledby="detail-title" data-pager data-page-size="10">
+            <div class="panel__head">
+                <div>
+                    <h2 class="panel__title" id="detail-title">All customer feedback</h2>
+                    <p class="panel__subtitle">@Model.Count @(Model.Count == 1 ? "entry" : "entries"), newest first</p>
+                </div>
+                <partial name="~/Views/Home/_PagerControls.cshtml" model="@("feedback")" />
+            </div>
+
+            @if (Model.Count == 0)
+            {
+                <p class="detail__empty">No customer feedback yet.</p>
+            }
+            else
+            {
+                <ul class="feedback-list" data-pager-list>
+                    @foreach (var entry in Model)
+                    {
+                        <li class="feedback" id="feedback-@entry.Id" data-pager-item>
+                            <time class="date-tile" datetime="@entry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                                <span class="date-tile__day">@entry.Date.ToString("MMM d", CultureInfo.InvariantCulture)</span>
+                                <span class="date-tile__year">@entry.Date.Year</span>
+                            </time>
+                            <div class="feedback__body">
+                                <h3 class="feedback__title">Client : @entry.Client, Team : @entry.Team</h3>
+                                <p class="feedback__excerpt">@entry.Excerpt</p>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>

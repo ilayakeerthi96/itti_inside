@@ -1,0 +1,118 @@
+@model MasterSectionViewModel<TrainingSession, TrainingSessionForm>
+@{
+    ViewData["Title"] = "Organization Training";
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit training" : "Add a training")</h2>
+    <p class="master-intro">Employees see upcoming trainings first, then past ones, on the Organization Training page.</p>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Title"></label>
+            <input class="form-control" asp-for="Form.Title" maxlength="@ContentLimits.ShortText" required />
+            <span class="master-field__error" asp-validation-for="Form.Title"></span>
+        </div>
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Category"></label>
+                <select class="form-select" asp-for="Form.Category" asp-items="@(new SelectList(TrainingCategories.All))"></select>
+                <span class="master-field__error" asp-validation-for="Form.Category"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Date"></label>
+                <input class="form-control" asp-for="Form.Date" required />
+                <span class="master-field__error" asp-validation-for="Form.Date"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Time"></label>
+                <input class="form-control" asp-for="Form.Time" maxlength="@ContentLimits.Label" placeholder="10:00 AM – 1:00 PM" />
+                <span class="master-field__error" asp-validation-for="Form.Time"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Mode"></label>
+                <select class="form-select" asp-for="Form.Mode" asp-items="@(new SelectList(TrainingModes.All))"></select>
+                <span class="master-field__error" asp-validation-for="Form.Mode"></span>
+            </div>
+        </div>
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Venue"></label>
+                <input class="form-control" asp-for="Form.Venue" maxlength="@ContentLimits.ShortText" placeholder="Training Room 1, or a Teams link" />
+                <span class="master-field__error" asp-validation-for="Form.Venue"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Trainer"></label>
+                <input class="form-control" asp-for="Form.Trainer" maxlength="@ContentLimits.ShortText" />
+                <span class="master-field__error" asp-validation-for="Form.Trainer"></span>
+            </div>
+        </div>
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Audience"></label>
+                <input class="form-control" asp-for="Form.Audience" maxlength="@ContentLimits.ShortText" placeholder="All employees" />
+                <span class="master-field__error" asp-validation-for="Form.Audience"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Registration"></label>
+                <input class="form-control" asp-for="Form.Registration" maxlength="@ContentLimits.ShortText" placeholder="A link, an email address or a short note" />
+                <span class="master-field__error" asp-validation-for="Form.Registration"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Description"></label>
+            <textarea class="form-control" asp-for="Form.Description" rows="4" maxlength="@ContentLimits.LongText"></textarea>
+            <span class="master-field__error" asp-validation-for="Form.Description"></span>
+        </div>
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Trainings</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Training</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Mode</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@item.Date.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
+                            <td>@item.Title</td>
+                            <td>@item.Category</td>
+                            <td>@item.Mode</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

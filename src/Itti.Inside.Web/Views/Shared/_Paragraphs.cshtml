@@ -1,0 +1,25 @@
+@* Shows text typed on the master page as paragraphs: an empty line starts a new one, a single line break stays. *@
+@model string
+@{
+    var paragraphs = Model
+        .Replace("\r\n", "\n", StringComparison.Ordinal)
+        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+<div class="prose">
+    @foreach (var paragraph in paragraphs)
+    {
+        var lines = paragraph.Split('\n');
+
+        <p>
+            @for (var index = 0; index < lines.Length; index++)
+            {
+                @lines[index]
+                if (index < lines.Length - 1)
+                {
+                    <br />
+                }
+            }
+        </p>
+    }
+</div>

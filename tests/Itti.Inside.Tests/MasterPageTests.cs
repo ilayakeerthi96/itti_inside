@@ -72,7 +72,7 @@ public sealed class MasterSectionTests(PortalWebFactory factory) : IClassFixture
     [Theory]
     [InlineData("/")]
     [InlineData("/ceo-desk")]
-    [InlineData("/hr/travel-desk")]
+    [InlineData("/hr/holidays")]
     public async Task Admin_sees_the_portal_pages_as_everyone_does(string path)
     {
         using var client = factory.CreateBrowser();
@@ -96,12 +96,16 @@ public sealed class MasterUpdateTests(PortalWebFactory factory) : IClassFixture<
 
         using var response = await client.PostFormAsync(
             "/master/ceo-desk",
-            "/master/text",
-            new("Key", nameof(PortalTextKey.CeoMessage)),
-            new("Value", "A new message from the CEO."));
+            "/master/ceo-desk",
+            new("Form.Title", "A new title from the CEO"),
+            new("Form.PostedOn", DateTime.Today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)),
+            new("Form.Message", "A new message from the CEO."));
+
+        var html = await MainPageAsync();
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Contains("A new message from the CEO.", await MainPageAsync(), StringComparison.Ordinal);
+        Assert.Contains("A new title from the CEO", html, StringComparison.Ordinal);
+        Assert.Contains("A new message from the CEO.", html, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -309,6 +313,7 @@ public sealed class EmptyContentTests(PortalWebFactory factory) : IClassFixture<
             await context.RockstarAwards.ExecuteDeleteAsync();
             await context.WeddingAnnouncements.ExecuteDeleteAsync();
             await context.NewBornAnnouncements.ExecuteDeleteAsync();
+            await context.CeoDeskPosts.ExecuteDeleteAsync();
         }
 
         using var client = factory.CreateBrowser();
@@ -359,7 +364,7 @@ public sealed class MasterAccessTests(PortalWebFactory factory) : IClassFixture<
         using var response = await client.PostAsync(new Uri("/master/text", UriKind.Relative), new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["__RequestVerificationToken"] = token,
-            ["Key"] = nameof(PortalTextKey.CeoMessage),
+            ["Key"] = nameof(PortalTextKey.BirthdaysPeriod),
             ["Value"] = "Visitor message.",
         }));
 
@@ -380,7 +385,7 @@ public sealed class MasterAccessTests(PortalWebFactory factory) : IClassFixture<
         // The admin check comes before the anti-forgery check, so no token is needed to show the refusal.
         using var response = await client.PostAsync(new Uri("/master/text", UriKind.Relative), new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["Key"] = nameof(PortalTextKey.CeoMessage),
+            ["Key"] = nameof(PortalTextKey.BirthdaysPeriod),
             ["Value"] = "Employee message.",
         }));
 

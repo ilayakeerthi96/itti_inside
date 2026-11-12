@@ -38,31 +38,6 @@ public sealed class AdminOnlyTests(AdminOnlyWebFactory factory) : IClassFixture<
     }
 }
 
-/// <summary>The CEO's Desk "More" button, whose address comes from configuration.</summary>
-public sealed class CeoDeskLinkTests
-{
-    [Fact]
-    public async Task Without_an_address_the_button_opens_this_sites_page()
-    {
-        using var factory = new CeoDeskLinkWebFactory(string.Empty);
-        using var client = factory.CreateBrowser();
-
-        var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
-
-        Assert.Equal("/ceo-desk", PageLinks.Find(html, "More").Href);
-    }
-
-    [Fact]
-    public void An_address_that_is_not_a_web_page_stops_the_site_from_starting()
-    {
-        using var factory = new CeoDeskLinkWebFactory("javascript:alert(1)");
-
-        var error = Assert.ThrowsAny<Exception>(() => factory.CreateBrowser());
-
-        Assert.Contains("Links:CeoDesk", error.ToString(), StringComparison.Ordinal);
-    }
-}
-
 /// <summary>The site as an IIS application under the intranet site, at /inside.</summary>
 public sealed partial class SubPathTests(SubPathWebFactory factory) : IClassFixture<SubPathWebFactory>
 {

@@ -11,7 +11,8 @@ public sealed class PortalDatabaseInitializer(
     PortalDbContext context,
     PortalSeedData seed,
     IConfiguration configuration,
-    IHostEnvironment environment)
+    IHostEnvironment environment,
+    TimeProvider clock)
 {
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
@@ -28,25 +29,32 @@ public sealed class PortalDatabaseInitializer(
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        // The starting birthdays and announcements count as posted today, so a new site shows them all.
+        var today = DateOnly.FromDateTime(clock.GetLocalNow().DateTime);
+
         await AddInOrderAsync(seed.HeroSlides, cancellationToken);
         await AddInOrderAsync(seed.CustomerFeedback, cancellationToken);
-        await AddInOrderAsync(seed.Birthdays.Entries, cancellationToken);
+        await AddInOrderAsync(seed.Birthdays.Entries.Select(entry => entry with { PostedOn = today }), cancellationToken);
         await AddInOrderAsync(seed.RockstarAwards, cancellationToken);
 
         // The seed file lists the newest first, and these lists show the highest Id first.
         await AddInOrderAsync(seed.LatestNews.Reverse(), cancellationToken);
         await AddInOrderAsync(
-            seed.WeddingBells.Announcements.Reverse().Select(text => new WeddingAnnouncement(0, text)),
+            seed.WeddingBells.Announcements.Reverse().Select(text => new WeddingAnnouncement(0, text, today)),
             cancellationToken);
         await AddInOrderAsync(
-            seed.NewBorns.Announcements.Reverse().Select(text => new NewBornAnnouncement(0, text)),
+            seed.NewBorns.Announcements.Reverse().Select(text => new NewBornAnnouncement(0, text, today)),
             cancellationToken);
 
+        context.CeoDeskPosts.Add(new CeoDeskPost(0, seed.CeoDesk.Title, today, seed.CeoDesk.Message));
+        context.TrainingSessions.AddRange(seed.TrainingSessions);
+        context.MedicalInsurancePolicies.Add(seed.MedicalInsurance);
+
         context.PortalTexts.AddRange(
-            new PortalText(PortalTextKey.CeoMessage, seed.CeoMessage.Excerpt),
             new PortalText(PortalTextKey.BirthdaysPeriod, seed.Birthdays.Period),
             new PortalText(PortalTextKey.WeddingBellsClosing, seed.WeddingBells.Closing),
-            new PortalText(PortalTextKey.NewBornClosing, seed.NewBorns.Closing));
+            new PortalText(PortalTextKey.NewBornClosing, seed.NewBorns.Closing),
+            new PortalText(PortalTextKey.HolidayNotes, seed.HolidayNotes));
 
         await context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

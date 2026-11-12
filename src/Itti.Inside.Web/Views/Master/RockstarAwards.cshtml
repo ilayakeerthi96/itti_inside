@@ -6,7 +6,7 @@
 <section class="panel" aria-labelledby="master-form-title">
     <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit award" : "Add an award")</h2>
 
-    <form class="master-form" method="post" asp-action="Save">
+    <form class="master-form" method="post" asp-action="Save" enctype="multipart/form-data">
         <input asp-for="Form.Id" type="hidden" />
 
         <div class="master-form__row master-form__row--wide-first">
@@ -29,6 +29,8 @@
             <span class="master-field__error" asp-validation-for="Form.Excerpt"></span>
         </div>
 
+        <partial name="~/Views/Master/_ImageField.cshtml" for="Form" />
+
         <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
     </form>
 </section>
@@ -46,6 +48,7 @@
             <table class="table align-middle master-table">
                 <thead>
                     <tr>
+                        <th scope="col"><span class="visually-hidden">Picture</span></th>
                         <th scope="col">Published</th>
                         <th scope="col">Title</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
@@ -55,6 +58,7 @@
                     @foreach (var item in Model.Items)
                     {
                         <tr>
+                            <td><partial name="~/Views/Master/_Thumbnail.cshtml" model="item.ImageId" /></td>
                             <td class="text-nowrap">@item.PublishedOn.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
                             <td>@item.Title</td>
                             <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>

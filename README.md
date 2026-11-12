@@ -1,6 +1,6 @@
 # ITTI Inside
 
-The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA, HR and Logout menu items and the CEO's Desk button go to the pages of the current intranet, in a new tab. Admins sign in to the master page to update the landing page, and changes show straight away. This version is a prototype: the admin sign-in is a demo, and the starting content is dummy data.
+The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA and Logout menu items go to the pages of the current intranet. The HR menu has three pages of its own: Corporate Medical Insurance, Holidays and Organization Training. Every link opens in a new tab. Admins sign in to the master page to update the landing page and the HR pages, and changes show straight away. This version is a prototype: the admin sign-in is a demo, and the starting content is dummy data.
 
 ## Stack
 
@@ -46,7 +46,23 @@ dotnet test
 
 ## Master page
 
-The admin keeps the portal up to date on the master page, which has a section for everything on the landing page: Hero Slides, Latest News, CEO's Desk, Customer Feedback, Birthdays, Rockstar Awards, Wedding Bells and New Born. Every employee sees each save on the main page straight away.
+The admin keeps the portal up to date on the master page. Its **Main page** group has a section for everything on the landing page: Hero Slides, Latest News, CEO's Desk, Customer Feedback, Birthdays, Rockstar Awards, Wedding Bells and New Born. Its **HR pages** group has Medical Insurance, Holidays and Organization Training. Every employee sees each save straight away.
+
+CEO's Desk is a list of dated messages. The landing page shows the start of the newest, and the CEO's Desk page shows it in full, with the earlier ones below.
+
+### Pictures
+
+A CEO's Desk message and a Rockstar Award can each have a picture, uploaded on its master form: JPG, PNG or WebP, up to 5 MB. The CEO's picture takes the place of the drawing on the card and the CEO's Desk page. An award's picture fills the top of its card and of its entry on the awards page. The content of each file is checked, not just its name, and SVG is refused, because it can carry script. Pictures live in the `PortalImages` table, apart from the messages and awards, and `/media/<id>` serves them. A replaced or removed picture is deleted, and so is the picture of a deleted item. Each new picture gets a new Id, so browsers may keep a picture for a year.
+
+### HR pages
+
+| Page | The admin enters | Employees see |
+| --- | --- | --- |
+| `/hr/corporate-medical-insurance` | One record: insurer, TPA, policy number, validity, sum insured, who is covered, benefits and claim steps (one per line), network hospitals link, helpdesk. Plus a policy document to download. | The policy with an "In force" badge, the benefits, the claim steps, the helpdesk and the download |
+| `/hr/holidays` | Holidays one at a time, the notes under the list, or HR's Word file. A Word file with a table of dates (for example SL # / PUBLIC HOLIDAY / DATE / DAY) replaces that year's holidays. PDF and Excel files are offered for download only. | This year's holidays, the next one highlighted, optional ones marked, the notes and the file to download |
+| `/hr/organization-training` | Trainings: title, category, date, time, mode, venue or link, trainer, audience, description and how to register | Upcoming trainings, soonest first, then past ones |
+
+Uploaded files are stored in the database, so the server needs no folder for them. Each file's content is checked against its type, and downloads are sent as attachments. `WordHolidayListReader` reads the Word file without any extra library.
 
 Only admins sign in. Everyone else opens the landing page without a sign-in page:
 
@@ -62,6 +78,14 @@ The portal controllers say `[AllowAnonymous]`. Every other page, the master page
 The demo also has an optional employee account, `Authentication:Demo`. It is switched off unless `Authentication:Demo:UserId` is set, and it opens nothing extra.
 
 On the main page, the list cards page through their items with previous and next buttons: 2 feedback entries, 5 birthdays, 2 awards and 2 announcements at a time. The buttons appear only when a card has more than one page. The main page loads the newest 10 feedback entries and 12 awards. To change these numbers, edit `data-page-size` in the card's view and the constants in `HomeDashboardService`.
+
+### New this month, or the last 2
+
+Birthdays, Wedding Bells and New Born entries each have a **Posted on** date, which the master page sets to today unless the admin changes it. Their cards show what was posted this month. When nothing was posted this month, a card shows the last 2 posts instead, with a short note, so it never goes blank while there is something to show. `RecentUpdates` holds this rule. Rows that existed before the date was added count as posted on the day of that upgrade.
+
+### Full pages
+
+Every card links to a page with all of its items, opened in a new tab: `/customer-feedback`, `/birthdays` (grouped by the month they were posted in), `/rockstar-awards`, `/wedding-bells` and `/new-born`. They page through 10 items at a time, or 6 awards. **Read More** on an award opens `/rockstar-awards#award-<id>`, on the page that holds that award. `DetailsController` serves them, without signing in.
 
 In the demo, the admin account is `Authentication:Admin`. A real sign-in must give the people who update the portal the `PortalRoles.Admin` role, in `AuthenticatedUser.Roles`.
 
@@ -109,13 +133,11 @@ The cookie session, sign-in rate limit and page protection stay as they are.
 
 ### Header menu
 
-The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. A path that starts with `/` is a page on this site and needs a matching entry in `pages`. A full `http://` or `https://` address goes to that site: Applications, the QA and HR items and Logout go to the pages of the current intranet, on `inside.itti.com` and `inside.itti.com:2020`. The Applications, QA and HR placeholder pages are still in `pages`, but nothing links to them. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
+The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR items of the current site. A path that starts with `/` is a page on this site and needs a matching entry in `pages`. A full `http://` or `https://` address goes to that site: Applications, the QA items and Logout go to the pages of the current intranet, on `inside.itti.com`. The Applications and QA placeholder pages are still in `pages`, but nothing links to them. On a computer with a mouse the dropdowns open on hover. On touch screens and in the phone menu they open on tap. To edit the menu from the site later, implement `INavigationRepository` over the database and register it in `Itti.Inside.Infrastructure/DependencyInjection.cs`.
 
 ### Links and new tabs
 
-Every link that leaves the landing page opens in a new tab, so the landing page stays open behind it: the menu items except Home, the CEO's Desk **More** button, **View all feedback** and the Rockstar Awards **Read More**. In a view, add `new-tab="true"` to an `<a>` for the same behaviour. `NewTabTagHelper` adds `target="_blank"`, `rel="noopener"` and a note for screen readers. Links back to Home and the links on the master pages stay in the same tab.
-
-The CEO's Desk **More** button goes to `Links:CeoDesk` in `appsettings.json`, the CEO's page on the current intranet. Because it is a setting, the server can point it elsewhere without a new build, for example with `Links__CeoDesk` in `web.config`. Leave it empty to use this site's own CEO's Desk page.
+Every link on the portal pages opens in a new tab, so the page stays open behind it: all menu items, Home and the logo included, the card links, the breadcrumbs and **Back to Home**. In a view, add `new-tab="true"` to an `<a>` for the same behaviour. `NewTabTagHelper` adds `target="_blank"`, `rel="noopener"` and a note for screen readers. A test checks every link on the portal pages, so a new link without it fails the build. Links within a page, e-mail addresses and the links on the master pages and the Admin Sign In page stay as they are.
 
 ### Inner pages
 

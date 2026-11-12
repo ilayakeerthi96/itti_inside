@@ -64,4 +64,55 @@ public sealed class SqlPortalContentEditor(PortalDbContext context) : IPortalCon
 
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task ReplaceHolidaysAsync(IReadOnlyList<Holiday> holidays, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(holidays);
+
+        var years = holidays.Select(holiday => holiday.Date.Year).Distinct().ToList();
+
+        // Both steps or neither, so a failed upload never leaves a year half replaced.
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        foreach (var year in years)
+        {
+            var first = new DateOnly(year, 1, 1);
+            var last = new DateOnly(year, 12, 31);
+
+            await context.Holidays
+                .Where(holiday => holiday.Date >= first && holiday.Date <= last)
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        context.Holidays.AddRange(holidays.Select(holiday => holiday with { Id = 0 }));
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    public async Task SaveDocumentAsync(PortalDocument document, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        var exists = await context.PortalDocuments.AnyAsync(stored => stored.Key == document.Key, cancellationToken);
+
+        context.Entry(document).State = exists ? EntityState.Modified : EntityState.Added;
+
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task DeleteDocumentAsync(string key, CancellationToken cancellationToken) =>
+        context.PortalDocuments.Where(document => document.Key == key).ExecuteDeleteAsync(cancellationToken);
+
+    public async Task<int> SaveImageAsync(PortalImage image, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+
+        context.PortalImages.Add(image);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return image.Id;
+    }
+
+    public Task DeleteImageAsync(int id, CancellationToken cancellationToken) =>
+        context.PortalImages.Where(image => image.Id == id).ExecuteDeleteAsync(cancellationToken);
 }

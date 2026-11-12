@@ -1,0 +1,11 @@
+@* A small picture in a master page list. The model is the picture's Id, or null when there is none. *@
+@model int?
+
+@if (Model is { } imageId)
+{
+    <img class="master-thumb" src="@Url.Content($"~/media/{imageId}")" alt="" width="44" height="44" loading="lazy" />
+}
+else
+{
+    <span class="master-thumb master-thumb--none" aria-hidden="true"></span>
+}

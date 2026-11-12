@@ -1,0 +1,49 @@
+@model IReadOnlyList<RockstarAward>
+@{
+    ViewData["Title"] = "Rockstar Awards";
+}
+
+<partial name="_PageBanner" model="@((string?)null)" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <section class="panel detail" aria-labelledby="detail-title" data-pager data-page-size="6">
+            <div class="panel__head">
+                <div>
+                    <h2 class="panel__title" id="detail-title">All Rockstar Awards</h2>
+                    <p class="panel__subtitle">@Model.Count @(Model.Count == 1 ? "award" : "awards"), newest first</p>
+                </div>
+                <partial name="~/Views/Home/_PagerControls.cshtml" model="@("awards")" />
+            </div>
+
+            @if (Model.Count == 0)
+            {
+                <p class="detail__empty">No Rockstar Awards yet.</p>
+            }
+            else
+            {
+                @* Each award has an id, so Read More on the landing page opens this page at that award. *@
+                <div class="award-grid" data-pager-list>
+                    @foreach (var award in Model)
+                    {
+                        <article class="award" id="award-@award.Id" data-pager-item>
+                            @if (award.ImageId is { } imageId)
+                            {
+                                <img class="award__image award__image--large" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @award.Title" width="480" height="300" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="award__star"><icon name="star" /></span>
+                            }
+                            <h3 class="award__title">@award.Title</h3>
+                            <time class="award__date" datetime="@award.PublishedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                                @award.PublishedOn.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)
+                            </time>
+                            <p class="award__excerpt">@award.Excerpt</p>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</div>

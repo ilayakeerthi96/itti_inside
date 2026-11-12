@@ -15,6 +15,10 @@ public sealed class SeedDataTests
 {
     private static readonly PortalSeedData Seed = PortalSeedData.Load();
 
+    // Pages with a controller of their own, rather than an entry in the seed file's pages list.
+    private static readonly string[] ControllerPages =
+        ["/", "/applications", "/hr/corporate-medical-insurance", "/hr/holidays", "/hr/organization-training"];
+
     [Fact]
     public void Every_menu_link_has_a_page_behind_it()
     {
@@ -22,7 +26,7 @@ public sealed class SeedDataTests
             .SelectMany(item => (item.Children ?? []).Append(item))
             .Select(item => item.Path)
             .OfType<string>()
-            .Where(path => path is not "/" and not "/applications" && path.StartsWith('/'));
+            .Where(path => path.StartsWith('/') && !ControllerPages.Contains(path));
 
         Assert.All(links, path => Assert.Contains(Seed.Pages, page => page.Path == path));
     }

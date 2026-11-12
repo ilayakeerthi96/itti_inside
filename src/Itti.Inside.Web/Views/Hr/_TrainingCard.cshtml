@@ -1,0 +1,70 @@
+@model TrainingSession
+@{
+    var isPast = ViewData["Past"] is true;
+}
+
+<article class="training @(isPast ? "training--past" : null)" id="training-@Model.Id" data-pager-item="@(isPast ? "" : null)">
+    <time class="date-tile" datetime="@Model.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+        <span class="date-tile__day">@Model.Date.ToString("MMM d", CultureInfo.InvariantCulture)</span>
+        <span class="date-tile__year">@Model.Date.Year</span>
+    </time>
+
+    <div class="training__body">
+        <p class="training__tags">
+            <span class="tag">@Model.Category</span>
+            <span class="tag tag--plain">@Model.Mode</span>
+        </p>
+        <h3 class="training__title">@Model.Title</h3>
+
+        <dl class="training__facts">
+            <div><dt>When</dt><dd>@Model.Date.ToString("dddd d MMMM yyyy", CultureInfo.InvariantCulture)@(Model.Time.Length > 0 ? $", {Model.Time}" : null)</dd></div>
+            @if (Model.Venue.Length > 0)
+            {
+                <div>
+                    <dt>Where</dt>
+                    <dd>
+                        @if (LinkDisplay.IsWebAddress(Model.Venue))
+                        {
+                            <a href="@Model.Venue" new-tab="true">Join online</a>
+                        }
+                        else
+                        {
+                            @Model.Venue
+                        }
+                    </dd>
+                </div>
+            }
+            @if (Model.Trainer.Length > 0)
+            {
+                <div><dt>Trainer</dt><dd>@Model.Trainer</dd></div>
+            }
+            @if (Model.Audience.Length > 0)
+            {
+                <div><dt>For</dt><dd>@Model.Audience</dd></div>
+            }
+        </dl>
+
+        @if (Model.Description.Length > 0)
+        {
+            <p class="training__about">@Model.Description</p>
+        }
+
+        @if (!isPast && Model.Registration.Length > 0)
+        {
+            <p class="training__register">
+                @if (LinkDisplay.IsWebAddress(Model.Registration))
+                {
+                    <a class="panel__link" href="@Model.Registration" new-tab="true">Register <icon name="arrow-right" /></a>
+                }
+                else if (LinkDisplay.IsEmailAddress(Model.Registration))
+                {
+                    <span>To register, email <a href="mailto:@Model.Registration">@Model.Registration</a></span>
+                }
+                else
+                {
+                    <span>To register: @Model.Registration</span>
+                }
+            </p>
+        }
+    </div>
+</article>

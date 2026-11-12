@@ -1,6 +1,75 @@
-@model MasterTextForm
+@model MasterSectionViewModel<CeoDeskPost, CeoDeskPostForm>
 @{
     ViewData["Title"] = "CEO's Desk";
 }
 
-<partial name="~/Views/Master/_TextForm.cshtml" model="Model" />
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">@(Model.IsEditing ? "Edit message" : "Add a message")</h2>
+    <p class="master-intro">The newest message shows on the main page. Employees see every message on the CEO's Desk page.</p>
+
+    <form class="master-form" method="post" asp-action="Save" enctype="multipart/form-data">
+        <input asp-for="Form.Id" type="hidden" />
+
+        <div class="master-form__row master-form__row--wide-first">
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.Title"></label>
+                <input class="form-control" asp-for="Form.Title" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Form.Title"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Form.PostedOn"></label>
+                <input class="form-control" asp-for="Form.PostedOn" required />
+                <span class="master-field__error" asp-validation-for="Form.PostedOn"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Form.Message"></label>
+            <textarea class="form-control" asp-for="Form.Message" rows="12" maxlength="@ContentLimits.LongText" required></textarea>
+            <div class="form-text">Leave an empty line between paragraphs.</div>
+            <span class="master-field__error" asp-validation-for="Form.Message"></span>
+        </div>
+
+        <partial name="~/Views/Master/_ImageField.cshtml" for="Form" />
+
+        <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
+    </form>
+</section>
+
+<section class="panel" aria-labelledby="master-list-title">
+    <h2 class="panel__title" id="master-list-title">Messages</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p class="master-empty">Nothing here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle master-table">
+                <thead>
+                    <tr>
+                        <th scope="col"><span class="visually-hidden">Picture</span></th>
+                        <th scope="col">Posted on</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Message</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><partial name="~/Views/Master/_Thumbnail.cshtml" model="item.ImageId" /></td>
+                            <td class="text-nowrap">@item.PostedOn.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
+                            <td>@item.Title</td>
+                            <td>@TextDisplay.Shorten(item.Message, 120)</td>
+                            <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

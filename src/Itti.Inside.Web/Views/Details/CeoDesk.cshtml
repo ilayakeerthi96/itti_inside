@@ -1,0 +1,72 @@
+@model IReadOnlyList<CeoDeskPost>
+@{
+    ViewData["Title"] = "CEO's Desk";
+    var latest = Model.FirstOrDefault();
+    var earlier = Model.Skip(1).ToList();
+}
+
+<partial name="_PageBanner" model="@((string?)null)" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <div class="detail-stack">
+            <section class="panel ceo ceo--page" aria-labelledby="detail-title">
+                <div class="ceo__art">
+                    @if (latest?.ImageId is { } imageId)
+                    {
+                        <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @latest.Title" width="240" height="240" />
+                    }
+                    else
+                    {
+                        <img src="~/images/art/ceo-podium.svg" alt="" width="240" height="240" />
+                    }
+                </div>
+                <div class="ceo__body">
+                    @if (latest is null)
+                    {
+                        <h2 class="panel__title" id="detail-title">CEO's Desk</h2>
+                        <p class="detail__empty">A message from the CEO will appear here soon.</p>
+                    }
+                    else
+                    {
+                        <h2 class="panel__title" id="detail-title">@latest.Title</h2>
+                        <time class="detail__date" datetime="@latest.PostedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                            @latest.PostedOn.ToString("d MMMM yyyy", CultureInfo.InvariantCulture)
+                        </time>
+                        <partial name="_Paragraphs" model="latest.Message" />
+                    }
+                </div>
+            </section>
+
+            @if (earlier.Count > 0)
+            {
+                <section class="panel detail" aria-labelledby="earlier-title" data-pager data-page-size="5">
+                    <div class="panel__head">
+                        <div>
+                            <h2 class="panel__title" id="earlier-title">Earlier messages</h2>
+                            <p class="panel__subtitle">@earlier.Count @(earlier.Count == 1 ? "message" : "messages"), newest first</p>
+                        </div>
+                        <partial name="~/Views/Home/_PagerControls.cshtml" model="@("messages")" />
+                    </div>
+
+                    <div class="ceo-archive" data-pager-list>
+                        @foreach (var post in earlier)
+                        {
+                            <article class="ceo-archive__post @(post.ImageId is null ? null : "ceo-archive__post--with-photo")" id="message-@post.Id" data-pager-item>
+                                @if (post.ImageId is { } postImageId)
+                                {
+                                    <img class="ceo-archive__photo" src="@Url.Content($"~/media/{postImageId}")" alt="Picture for @post.Title" width="120" height="120" loading="lazy" />
+                                }
+                                <h3 class="ceo-archive__title">@post.Title</h3>
+                                <time class="detail__date" datetime="@post.PostedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                                    @post.PostedOn.ToString("d MMMM yyyy", CultureInfo.InvariantCulture)
+                                </time>
+                                <partial name="_Paragraphs" model="post.Message" />
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+</div>

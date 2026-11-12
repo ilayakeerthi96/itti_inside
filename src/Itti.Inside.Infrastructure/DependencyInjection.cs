@@ -7,6 +7,7 @@ using Itti.Inside.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Itti.Inside.Infrastructure;
@@ -29,6 +30,8 @@ public static class DependencyInjection
                 ?? throw new InvalidOperationException("Set the database in ConnectionStrings:Portal."),
             sqlServer => sqlServer.UseCompatibilityLevel(SqlServerCompatibilityLevel)));
 
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<IHolidayListReader, WordHolidayListReader>();
         services.AddScoped<PortalDatabaseInitializer>();
         services.AddScoped<IPortalContentRepository, SqlPortalContentRepository>();
         services.AddScoped<IPortalContentEditor, SqlPortalContentEditor>();

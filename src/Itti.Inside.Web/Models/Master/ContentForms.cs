@@ -110,17 +110,21 @@ public sealed class BirthdayForm : IContentForm<BirthdayEntry>
     [StringLength(ContentLimits.ShortText)]
     public string Location { get; set; } = string.Empty;
 
+    [DataType(DataType.Date)]
+    [Display(Name = "Posted on")]
+    public DateOnly PostedOn { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
     public void Load(BirthdayEntry item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        (Id, EmployeeId, Name, Day, Email, Location) = item;
+        (Id, EmployeeId, Name, Day, Email, Location, PostedOn) = item;
     }
 
-    public BirthdayEntry ToItem() => new(Id, EmployeeId.Trim(), Name.Trim(), Day, Email.Trim(), Location.Trim());
+    public BirthdayEntry ToItem() => new(Id, EmployeeId.Trim(), Name.Trim(), Day, Email.Trim(), Location.Trim(), PostedOn);
 }
 
-public sealed class RockstarAwardForm : IContentForm<RockstarAward>
+public sealed class RockstarAwardForm : IContentForm<RockstarAward>, IImageForm
 {
     public int Id { get; set; }
 
@@ -137,14 +141,22 @@ public sealed class RockstarAwardForm : IContentForm<RockstarAward>
     [Display(Name = "Announcement")]
     public string Excerpt { get; set; } = string.Empty;
 
+    public int? ImageId { get; set; }
+
+    [Display(Name = "Picture")]
+    public IFormFile? Image { get; set; }
+
+    [Display(Name = "Remove the picture")]
+    public bool RemoveImage { get; set; }
+
     public void Load(RockstarAward item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        (Id, Title, PublishedOn, Excerpt) = item;
+        (Id, Title, PublishedOn, Excerpt, ImageId) = item;
     }
 
-    public RockstarAward ToItem() => new(Id, Title.Trim(), PublishedOn, Excerpt.Trim());
+    public RockstarAward ToItem() => new(Id, Title.Trim(), PublishedOn, Excerpt.Trim(), ImageId);
 }
 
 public sealed class WeddingAnnouncementForm : IContentForm<WeddingAnnouncement>
@@ -156,14 +168,18 @@ public sealed class WeddingAnnouncementForm : IContentForm<WeddingAnnouncement>
     [Display(Name = "Announcement")]
     public string Text { get; set; } = string.Empty;
 
+    [DataType(DataType.Date)]
+    [Display(Name = "Posted on")]
+    public DateOnly PostedOn { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
     public void Load(WeddingAnnouncement item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        (Id, Text) = item;
+        (Id, Text, PostedOn) = item;
     }
 
-    public WeddingAnnouncement ToItem() => new(Id, Text.Trim());
+    public WeddingAnnouncement ToItem() => new(Id, Text.Trim(), PostedOn);
 }
 
 public sealed class NewBornAnnouncementForm : IContentForm<NewBornAnnouncement>
@@ -175,12 +191,16 @@ public sealed class NewBornAnnouncementForm : IContentForm<NewBornAnnouncement>
     [Display(Name = "Announcement")]
     public string Text { get; set; } = string.Empty;
 
+    [DataType(DataType.Date)]
+    [Display(Name = "Posted on")]
+    public DateOnly PostedOn { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
     public void Load(NewBornAnnouncement item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        (Id, Text) = item;
+        (Id, Text, PostedOn) = item;
     }
 
-    public NewBornAnnouncement ToItem() => new(Id, Text.Trim());
+    public NewBornAnnouncement ToItem() => new(Id, Text.Trim(), PostedOn);
 }

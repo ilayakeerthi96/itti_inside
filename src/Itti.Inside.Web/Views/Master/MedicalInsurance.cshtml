@@ -1,0 +1,114 @@
+@model MedicalInsuranceForm
+@{
+    ViewData["Title"] = "Medical Insurance";
+
+    var filePanel = new DocumentPanelModel(
+        "Policy document",
+        "Upload the policy or the employee guide. Employees can download it from the Corporate Medical Insurance page.",
+        ".pdf,.docx",
+        ViewData[nameof(PortalDocumentInfo)] as PortalDocumentInfo);
+}
+
+<section class="panel" aria-labelledby="master-form-title">
+    <h2 class="panel__title" id="master-form-title">Policy details</h2>
+    <p class="master-intro">Employees see these on the Corporate Medical Insurance page. Fields without a star are optional.</p>
+
+    <form class="master-form" method="post" asp-action="Save">
+        <input asp-for="Id" type="hidden" />
+
+        <h3 class="master-form__heading">The policy</h3>
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Insurer">Insurance company *</label>
+                <input class="form-control" asp-for="Insurer" maxlength="@ContentLimits.ShortText" required />
+                <span class="master-field__error" asp-validation-for="Insurer"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="Administrator"></label>
+                <input class="form-control" asp-for="Administrator" maxlength="@ContentLimits.ShortText" />
+                <span class="master-field__error" asp-validation-for="Administrator"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="PolicyNumber"></label>
+                <input class="form-control" asp-for="PolicyNumber" maxlength="@ContentLimits.Label" />
+                <span class="master-field__error" asp-validation-for="PolicyNumber"></span>
+            </div>
+        </div>
+
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="ValidFrom">Valid from *</label>
+                <input class="form-control" asp-for="ValidFrom" required />
+                <span class="master-field__error" asp-validation-for="ValidFrom"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="ValidTo">Valid to *</label>
+                <input class="form-control" asp-for="ValidTo" required />
+                <span class="master-field__error" asp-validation-for="ValidTo"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="SumInsured">Sum insured *</label>
+                <input class="form-control" asp-for="SumInsured" maxlength="@ContentLimits.ShortText" placeholder="₹5,00,000 per family per year" required />
+                <span class="master-field__error" asp-validation-for="SumInsured"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="Coverage">Who is covered *</label>
+            <input class="form-control" asp-for="Coverage" maxlength="@ContentLimits.ShortText" placeholder="Employee, spouse and up to two children" required />
+            <span class="master-field__error" asp-validation-for="Coverage"></span>
+        </div>
+
+        <h3 class="master-form__heading">Benefits and claims</h3>
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="Benefits"></label>
+                <textarea class="form-control" asp-for="Benefits" rows="6" maxlength="@ContentLimits.LongText"></textarea>
+                <span class="master-field__error" asp-validation-for="Benefits"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="ClaimSteps"></label>
+                <textarea class="form-control" asp-for="ClaimSteps" rows="6" maxlength="@ContentLimits.LongText"></textarea>
+                <span class="master-field__error" asp-validation-for="ClaimSteps"></span>
+            </div>
+        </div>
+
+        <div class="master-field">
+            <label class="form-label" asp-for="NetworkHospitalsLink"></label>
+            <input class="form-control" asp-for="NetworkHospitalsLink" type="url" maxlength="@ContentLimits.Address" placeholder="https://" />
+            <span class="master-field__error" asp-validation-for="NetworkHospitalsLink"></span>
+        </div>
+
+        <h3 class="master-form__heading">Helpdesk</h3>
+        <div class="master-form__row">
+            <div class="master-field">
+                <label class="form-label" asp-for="HelpdeskName"></label>
+                <input class="form-control" asp-for="HelpdeskName" maxlength="@ContentLimits.ShortText" />
+                <span class="master-field__error" asp-validation-for="HelpdeskName"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="HelpdeskPhone"></label>
+                <input class="form-control" asp-for="HelpdeskPhone" type="tel" maxlength="@ContentLimits.Label" />
+                <span class="master-field__error" asp-validation-for="HelpdeskPhone"></span>
+            </div>
+
+            <div class="master-field">
+                <label class="form-label" asp-for="HelpdeskEmail"></label>
+                <input class="form-control" asp-for="HelpdeskEmail" type="email" maxlength="@ContentLimits.Email" />
+                <span class="master-field__error" asp-validation-for="HelpdeskEmail"></span>
+            </div>
+        </div>
+
+        <div class="master-form__buttons">
+            <button type="submit" class="btn-portal">Save</button>
+        </div>
+    </form>
+</section>
+
+<partial name="~/Views/Master/_DocumentPanel.cshtml" model="filePanel" />

@@ -1,18 +1,32 @@
-@using Microsoft.Extensions.Options
-@model CeoMessage
-@inject IOptions<PortalLinkOptions> Links
+@model CeoDeskPost?
 @{
-    // The full message lives on the current intranet. Without that address, use this site's page.
-    var moreHref = Links.Value.CeoDesk.Length > 0 ? Links.Value.CeoDesk : Url.Content("~/ceo-desk");
+    // The card shows the start of the newest message. The CEO's Desk page shows it in full, with earlier ones.
+    const int CardLength = 320;
 }
 
 <section class="panel ceo" id="ceo-desk" aria-labelledby="ceo-desk-title">
     <div class="ceo__art">
-        <img src="~/images/art/ceo-podium.svg" alt="" width="240" height="240" loading="lazy" />
+        @* The message's own picture when it has one, otherwise the drawing. *@
+        @if (Model?.ImageId is { } imageId)
+        {
+            <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @Model.Title" width="240" height="240" loading="lazy" />
+        }
+        else
+        {
+            <img src="~/images/art/ceo-podium.svg" alt="" width="240" height="240" loading="lazy" />
+        }
     </div>
     <div class="ceo__body">
         <h2 class="panel__title" id="ceo-desk-title">CEO's Desk</h2>
-        <p class="ceo__excerpt">@Model.Excerpt</p>
-        <a class="btn-portal" href="@moreHref" new-tab="true">More <icon name="arrow-right" /></a>
+        @if (Model is null)
+        {
+            <p class="ceo__excerpt">A message from the CEO will appear here soon.</p>
+        }
+        else
+        {
+            <p class="ceo__title">@Model.Title</p>
+            <p class="ceo__excerpt">@TextDisplay.Shorten(Model.Message, CardLength)</p>
+        }
+        <a class="btn-portal" href="~/ceo-desk" new-tab="true">More <icon name="arrow-right" /></a>
     </div>
 </section>

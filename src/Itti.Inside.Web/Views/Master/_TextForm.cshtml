@@ -1,7 +1,8 @@
 @model MasterTextForm
 @{
-    var label = MasterSections.ForText(Model.Key).TextLabel;
-    var isLongText = Model.Key == PortalTextKey.CeoMessage;
+    var section = MasterSections.ForText(Model.Key);
+    var label = section.TextLabel;
+    var isLongText = section.LongText;
 }
 
 <section class="panel" aria-labelledby="master-text-title">
@@ -12,7 +13,7 @@
 
         <div class="master-field">
             <label class="visually-hidden" asp-for="Value">@label</label>
-            <textarea class="form-control" asp-for="Value" rows="@(isLongText ? 10 : 2)"
+            <textarea class="form-control" asp-for="Value" rows="@(isLongText ? 5 : 2)"
                       maxlength="@(isLongText ? ContentLimits.LongText : ContentLimits.ShortText)" required></textarea>
         </div>
 

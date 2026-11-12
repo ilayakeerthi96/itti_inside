@@ -29,9 +29,73 @@ public sealed class PortalDbContext : DbContext
 
     public DbSet<PortalText> PortalTexts => Set<PortalText>();
 
+    public DbSet<CeoDeskPost> CeoDeskPosts => Set<CeoDeskPost>();
+
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+
+    public DbSet<TrainingSession> TrainingSessions => Set<TrainingSession>();
+
+    public DbSet<MedicalInsurancePolicy> MedicalInsurancePolicies => Set<MedicalInsurancePolicy>();
+
+    public DbSet<PortalDocument> PortalDocuments => Set<PortalDocument>();
+
+    public DbSet<PortalImage> PortalImages => Set<PortalImage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
+
+        modelBuilder.Entity<PortalImage>(image => image.Property(item => item.ContentType).HasMaxLength(ContentLimits.Label));
+
+        // A picture that is removed leaves its message or award in place, without a picture.
+        modelBuilder.Entity<CeoDeskPost>(post =>
+        {
+            post.Property(item => item.Title).HasMaxLength(ContentLimits.ShortText);
+            post.Property(item => item.Message).HasMaxLength(ContentLimits.LongText);
+            post.HasOne<PortalImage>().WithMany().HasForeignKey(item => item.ImageId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Holiday>(holiday =>
+        {
+            holiday.Property(item => item.Name).HasMaxLength(ContentLimits.ShortText);
+            holiday.HasIndex(item => item.Date);
+        });
+
+        modelBuilder.Entity<TrainingSession>(session =>
+        {
+            session.Property(item => item.Title).HasMaxLength(ContentLimits.ShortText);
+            session.Property(item => item.Category).HasMaxLength(ContentLimits.Label);
+            session.Property(item => item.Time).HasMaxLength(ContentLimits.Label);
+            session.Property(item => item.Mode).HasMaxLength(ContentLimits.Label);
+            session.Property(item => item.Venue).HasMaxLength(ContentLimits.ShortText);
+            session.Property(item => item.Trainer).HasMaxLength(ContentLimits.ShortText);
+            session.Property(item => item.Audience).HasMaxLength(ContentLimits.ShortText);
+            session.Property(item => item.Description).HasMaxLength(ContentLimits.LongText);
+            session.Property(item => item.Registration).HasMaxLength(ContentLimits.ShortText);
+        });
+
+        modelBuilder.Entity<MedicalInsurancePolicy>(policy =>
+        {
+            policy.Property(item => item.Insurer).HasMaxLength(ContentLimits.ShortText);
+            policy.Property(item => item.Administrator).HasMaxLength(ContentLimits.ShortText);
+            policy.Property(item => item.PolicyNumber).HasMaxLength(ContentLimits.Label);
+            policy.Property(item => item.SumInsured).HasMaxLength(ContentLimits.ShortText);
+            policy.Property(item => item.Coverage).HasMaxLength(ContentLimits.ShortText);
+            policy.Property(item => item.Benefits).HasMaxLength(ContentLimits.LongText);
+            policy.Property(item => item.ClaimSteps).HasMaxLength(ContentLimits.LongText);
+            policy.Property(item => item.NetworkHospitalsLink).HasMaxLength(ContentLimits.Address);
+            policy.Property(item => item.HelpdeskName).HasMaxLength(ContentLimits.ShortText);
+            policy.Property(item => item.HelpdeskPhone).HasMaxLength(ContentLimits.Label);
+            policy.Property(item => item.HelpdeskEmail).HasMaxLength(ContentLimits.Email);
+        });
+
+        modelBuilder.Entity<PortalDocument>(document =>
+        {
+            document.HasKey(item => item.Key);
+            document.Property(item => item.Key).HasMaxLength(ContentLimits.Label);
+            document.Property(item => item.FileName).HasMaxLength(ContentLimits.ShortText);
+            document.Property(item => item.ContentType).HasMaxLength(ContentLimits.ShortText);
+        });
 
         modelBuilder.Entity<HeroSlide>(slide =>
         {
@@ -60,6 +124,7 @@ public sealed class PortalDbContext : DbContext
         {
             award.Property(item => item.Title).HasMaxLength(ContentLimits.ShortText);
             award.Property(item => item.Excerpt).HasMaxLength(ContentLimits.LongText);
+            award.HasOne<PortalImage>().WithMany().HasForeignKey(item => item.ImageId).OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<WeddingAnnouncement>().Property(item => item.Text).HasMaxLength(ContentLimits.ShortText);

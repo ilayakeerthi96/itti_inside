@@ -40,7 +40,7 @@ public sealed class BirthdaysMasterController(IPortalContentEditor editor, ILogg
     protected override PortalTextKey? TextKey => PortalTextKey.BirthdaysPeriod;
 
     protected override IEnumerable<BirthdayEntry> Arrange(IEnumerable<BirthdayEntry> items) =>
-        items.OrderBy(entry => entry.Day);
+        items.OrderByDescending(entry => entry.PostedOn).ThenBy(entry => entry.Day);
 }
 
 [Route("master/rockstar-awards")]
@@ -60,6 +60,9 @@ public sealed class WeddingBellsMasterController(IPortalContentEditor editor, IL
     protected override string SectionView => "WeddingBells";
 
     protected override PortalTextKey? TextKey => PortalTextKey.WeddingBellsClosing;
+
+    protected override IEnumerable<WeddingAnnouncement> Arrange(IEnumerable<WeddingAnnouncement> items) =>
+        items.OrderByDescending(item => item.PostedOn).ThenByDescending(item => item.Id);
 }
 
 [Route("master/new-born")]
@@ -69,4 +72,7 @@ public sealed class NewBornMasterController(IPortalContentEditor editor, ILogger
     protected override string SectionView => "NewBorn";
 
     protected override PortalTextKey? TextKey => PortalTextKey.NewBornClosing;
+
+    protected override IEnumerable<NewBornAnnouncement> Arrange(IEnumerable<NewBornAnnouncement> items) =>
+        items.OrderByDescending(item => item.PostedOn).ThenByDescending(item => item.Id);
 }

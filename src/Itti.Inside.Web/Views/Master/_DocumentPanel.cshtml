@@ -1,0 +1,43 @@
+@* The uploaded file of a section, with upload and remove. The section's controller has Upload and DeleteDocument. *@
+@model DocumentPanelModel
+
+<section class="panel" aria-labelledby="master-file-title">
+    <h2 class="panel__title" id="master-file-title">@Model.Title</h2>
+    <p class="master-intro">@Model.Help</p>
+
+    @if (Model.Document is { } document)
+    {
+        <div class="master-file">
+            <span class="master-file__icon"><icon name="file-text" /></span>
+            <div class="master-file__about">
+                <a class="master-file__name" href="@Url.Content($"~/documents/{document.Key}")">@document.FileName</a>
+                <span class="master-file__meta">
+                    @FileSizeDisplay.Format(document.Size) &middot; uploaded @document.UploadedOn.ToLocalTime().ToString("d MMM yyyy, h:mm tt", CultureInfo.InvariantCulture)
+                </span>
+            </div>
+            <form method="post" asp-action="DeleteDocument" data-confirm="Remove this file? Employees will no longer be able to download it.">
+                <button type="submit" class="master-action master-action--danger">Remove</button>
+            </form>
+        </div>
+    }
+
+    <form class="master-form master-upload" method="post" asp-action="Upload" enctype="multipart/form-data">
+        <div class="master-field">
+            <label class="form-label" for="upload-file">@(Model.Document is null ? "Choose a file" : "Replace it with")</label>
+            <input class="form-control" type="file" id="upload-file" name="file" accept="@Model.Accept" required />
+            <div class="form-text">@Model.Accept.Replace(",", ", ", StringComparison.Ordinal). Up to 10 MB.</div>
+        </div>
+
+        @if (Model.OffersListUpdate)
+        {
+            <div class="form-check master-check">
+                <input class="form-check-input" type="checkbox" id="upload-update-list" name="updateList" value="true" checked />
+                <label class="form-check-label" for="upload-update-list">
+                    Also update the holiday list from the table in a Word (.docx) file. It replaces that year's holidays.
+                </label>
+            </div>
+        }
+
+        <button type="submit" class="btn-portal">Upload</button>
+    </form>
+</section>

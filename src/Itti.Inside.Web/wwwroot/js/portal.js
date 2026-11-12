@@ -201,8 +201,18 @@
             previous.addEventListener('click', () => show(current - 1, 'previous'));
             next.addEventListener('click', () => show(current + 1, 'next'));
 
+            // A link such as /rockstar-awards#award-12 opens on the page that holds that item.
+            const linked = items.findIndex((item) => item.id && `#${item.id}` === window.location.hash);
+            if (linked >= 0) {
+                current = Math.floor(linked / size);
+            }
+
             controls.hidden = false;
             holdHeight();
+
+            if (linked >= 0) {
+                items[linked].scrollIntoView({ block: 'center' });
+            }
 
             let resizeTimer;
             window.addEventListener('resize', () => {

@@ -7,14 +7,15 @@
     // Menu entries either open a page on this site or go to another site, such as the current intranet.
     string Href(NavigationItem item) => item.IsExternal ? item.Path! : Url.Content($"~{item.Path}");
 
-    // Every entry except Home opens in a new tab, so the landing page stays open behind it.
-    static bool OpensInNewTab(NavigationItem item) => item.Path != "/";
+    // On the portal every link opens in a new tab, Home and the logo included, so the page stays open
+    // behind it. The admin header on the master pages keeps its links in the same tab.
+    var newTab = !isAdminHeader;
 }
 
 <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Main">
         <div class="container-xxl">
-            <a class="navbar-brand" href="@Url.Content(isAdminHeader ? "~/master" : "~/")">
+            <a class="navbar-brand" href="@Url.Content(isAdminHeader ? "~/master" : "~/")" new-tab="@newTab">
                 <img src="~/images/brand/inside-logo.png" alt="ITTI Inside" width="167" height="78" />
             </a>
 
@@ -54,7 +55,7 @@
                                         {
                                             <li>
                                                 <a class="dropdown-item @(Model.IsActive(child) ? "active" : null)"
-                                                   href="@Href(child)" new-tab="@OpensInNewTab(child)">@child.Title</a>
+                                                   href="@Href(child)" new-tab="@newTab">@child.Title</a>
                                             </li>
                                         }
                                     </ul>
@@ -65,7 +66,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link @(isActive ? "active" : null)"
                                        aria-current="@(isActive ? "page" : null)"
-                                       href="@Href(item)" new-tab="@OpensInNewTab(item)">@item.Title</a>
+                                       href="@Href(item)" new-tab="@newTab">@item.Title</a>
                                 </li>
                             }
                         }

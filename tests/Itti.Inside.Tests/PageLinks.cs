@@ -8,18 +8,24 @@ public static partial class PageLinks
 {
     public static PageLink Find(string html, string text)
     {
-        ArgumentNullException.ThrowIfNull(html);
-
-        var link = Anchor().Matches(html)
-            .Select(match => new PageLink(
-                match.Groups["tag"].Value,
-                WebUtility.HtmlDecode(Href().Match(match.Groups["tag"].Value).Groups[1].Value),
-                WebUtility.HtmlDecode(Markup().Replace(match.Groups["text"].Value, string.Empty)).Trim()))
-            .FirstOrDefault(candidate => candidate.Text == text);
+        var link = All(html).FirstOrDefault(candidate => candidate.Text == text);
 
         Assert.True(link is not null, $"No link with the text '{text}'.");
 
         return link;
+    }
+
+    /// <summary>Every link in the page, in order.</summary>
+    public static IReadOnlyList<PageLink> All(string html)
+    {
+        ArgumentNullException.ThrowIfNull(html);
+
+        return Anchor().Matches(html)
+            .Select(match => new PageLink(
+                match.Groups["tag"].Value,
+                WebUtility.HtmlDecode(Href().Match(match.Groups["tag"].Value).Groups[1].Value),
+                WebUtility.HtmlDecode(Markup().Replace(match.Groups["text"].Value, string.Empty)).Trim()))
+            .ToList();
     }
 
     [GeneratedRegex("(?<tag><a\\s[^>]*>)(?<text>.*?)</a>", RegexOptions.Singleline)]

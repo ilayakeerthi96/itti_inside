@@ -1,0 +1,59 @@
+@model BirthdayCalendar
+@{
+    ViewData["Title"] = "Birthdays";
+
+    // One list per month the admin posted birthdays in, the newest month first, each running by day.
+    var months = Model.Entries
+        .GroupBy(entry => new DateOnly(entry.PostedOn.Year, entry.PostedOn.Month, 1))
+        .OrderByDescending(month => month.Key)
+        .ToList();
+}
+
+<partial name="_PageBanner" model="@((string?)null)" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        @if (months.Count == 0)
+        {
+            <section class="panel detail">
+                <p class="detail__empty">No birthdays yet.</p>
+            </section>
+        }
+
+        <div class="detail-stack">
+            @foreach (var month in months)
+            {
+                var title = month.Key.ToString("MMMM yyyy", CultureInfo.InvariantCulture);
+                var id = $"birthdays-{month.Key:yyyy-MM}";
+
+                <section class="panel panel--birthdays detail" id="@id" aria-labelledby="@id-title">
+                    <div class="panel__head">
+                        <div>
+                            <h2 class="panel__title" id="@id-title">@title</h2>
+                            <p class="panel__subtitle">@month.Count() @(month.Count() == 1 ? "birthday" : "birthdays")</p>
+                        </div>
+                    </div>
+
+                    <ul class="birthday-list">
+                        @foreach (var person in month.OrderBy(entry => entry.Day).ThenBy(entry => entry.Name))
+                        {
+                            <li class="birthday">
+                                <span class="avatar" aria-hidden="true">@PersonDisplay.Initials(person.Name)</span>
+                                <div class="birthday__who">
+                                    <span class="birthday__name">@person.Name</span>
+                                    <span class="birthday__meta">
+                                        @person.EmployeeId &middot; @person.Location &middot;
+                                        <a href="mailto:@person.Email">@person.Email</a>
+                                    </span>
+                                </div>
+                                <span class="birthday__day">
+                                    <span class="visually-hidden">Day </span>@person.Day
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+    </div>
+</div>

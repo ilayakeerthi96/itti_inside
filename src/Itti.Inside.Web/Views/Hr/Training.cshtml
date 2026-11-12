@@ -1,0 +1,55 @@
+@model TrainingPageViewModel
+@{
+    ViewData["Title"] = "Organization Training";
+}
+
+<partial name="_PageBanner" model="@("HR")" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        <div class="detail-stack">
+            <section class="panel" aria-labelledby="upcoming-title">
+                <div class="panel__head">
+                    <div>
+                        <h2 class="panel__title" id="upcoming-title">Upcoming trainings</h2>
+                        <p class="panel__subtitle">Soonest first</p>
+                    </div>
+                </div>
+
+                @if (Model.Upcoming.Count == 0)
+                {
+                    <p class="detail__empty">No trainings are planned right now. New ones will appear here.</p>
+                }
+                else
+                {
+                    <div class="training-grid">
+                        @foreach (var session in Model.Upcoming)
+                        {
+                            <partial name="_TrainingCard" model="session" />
+                        }
+                    </div>
+                }
+            </section>
+
+            @if (Model.Past.Count > 0)
+            {
+                <section class="panel detail" aria-labelledby="past-title" data-pager data-page-size="6">
+                    <div class="panel__head">
+                        <div>
+                            <h2 class="panel__title" id="past-title">Past trainings</h2>
+                            <p class="panel__subtitle">Most recent first</p>
+                        </div>
+                        <partial name="~/Views/Home/_PagerControls.cshtml" model="@("trainings")" />
+                    </div>
+
+                    <div class="training-grid" data-pager-list>
+                        @foreach (var session in Model.Past)
+                        {
+                            <partial name="_TrainingCard" model="session" view-data='new ViewDataDictionary(ViewData) { ["Past"] = true }' />
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+</div>

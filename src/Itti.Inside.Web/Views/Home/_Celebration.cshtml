@@ -1,8 +1,11 @@
-@model CelebrationBoard
+@model CardContent<CelebrationBoard>
 @{
     var heading = (string)ViewData["Heading"]!;
     var art = (string)ViewData["Art"]!;
+
+    // The card's id, which is also the address of its full page, such as /wedding-bells.
     var anchor = (string)ViewData["Anchor"]!;
+    var board = Model.Content;
 }
 
 <section class="panel celebration celebration--@art" id="@anchor" aria-labelledby="@anchor-title"
@@ -16,13 +19,20 @@
             <partial name="_PagerControls" model="@("announcements")" />
         </div>
 
+        @if (Model.ShowsEarlierUpdates)
+        {
+            <p class="panel__note">Nothing new this month, so here are the latest updates.</p>
+        }
+
         <ul class="celebration__list" data-pager-list>
-            @foreach (var announcement in Model.Announcements)
+            @foreach (var announcement in board.Announcements)
             {
-                <li data-pager-item>@announcement</li>
+                <li data-pager-item>@announcement.Text</li>
             }
         </ul>
 
-        <p class="celebration__closing">@Model.Closing</p>
+        <p class="celebration__closing">@board.Closing</p>
+
+        <a class="panel__link celebration__more" href="@Url.Content($"~/{anchor}")" new-tab="true">View all <icon name="arrow-right" /></a>
     </div>
 </section>

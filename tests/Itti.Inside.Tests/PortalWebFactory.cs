@@ -85,16 +85,6 @@ public sealed class StrictRateLimitWebFactory : PortalWebFactory
     protected override int SignInAttemptsPerMinute => 2;
 }
 
-/// <summary>Same application with its own address, or none, for the CEO's Desk "More" button.</summary>
-public sealed class CeoDeskLinkWebFactory(string address) : PortalWebFactory
-{
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        base.ConfigureWebHost(builder);
-        builder.UseSetting("Links:CeoDesk", address);
-    }
-}
-
 /// <summary>Same application with only the admin account, as the IIS setup now configures it.</summary>
 public sealed class AdminOnlyWebFactory : PortalWebFactory
 {

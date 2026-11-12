@@ -1,7 +1,6 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using Itti.Inside.Application.Identity;
-using Itti.Inside.Web.Models;
 using Itti.Inside.Web.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -48,13 +47,6 @@ public static class ServiceCollectionExtensions
 
         services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
         services.AddHealthChecks();
-
-        services.AddOptions<PortalLinkOptions>()
-            .Bind(configuration.GetSection(PortalLinkOptions.SectionName))
-            .Validate(
-                links => links.CeoDesk.Length == 0 || PortalLinkOptions.IsWebAddress(links.CeoDesk),
-                "Links:CeoDesk must be a full http:// or https:// address, or empty.")
-            .ValidateOnStart();
 
         return services;
     }

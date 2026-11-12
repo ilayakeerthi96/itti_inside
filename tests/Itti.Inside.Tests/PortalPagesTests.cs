@@ -13,8 +13,6 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("Corporate Medical Insurance")]
     [InlineData("HOLIDAYS")]
     [InlineData("Organization Training")]
-    [InlineData("Useful Links")]
-    [InlineData("Travel desk")]
     [InlineData("Logout")]
     public async Task Header_has_every_menu_item(string menuItem)
     {
@@ -25,13 +23,11 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("Applications", "https://inside.itti.com/application-wp.asp")]
     [InlineData("Quality Management System", "https://inside.itti.com/qms_new/index.asp")]
     [InlineData("Process Asset Library", "https://inside.itti.com/PALibrary/default.asp")]
-    [InlineData("Corporate Medical Insurance", "http://inside.itti.com:2020/inside/corporate-medical-insurance/")]
-    [InlineData("HOLIDAYS – 2026", "http://inside.itti.com:2020/inside/holidays-2021/")]
-    [InlineData("Organization Training", "http://inside.itti.com:2020/inside/training-plan/")]
-    [InlineData("Useful Links", "http://inside.itti.com:2020/inside/useful-links/")]
-    [InlineData("Travel desk", "http://inside.itti.com:2020/inside/traveldesk/")]
     [InlineData("Logout", "https://inside.itti.com/Logout.asp")]
-    public async Task Menu_links_go_to_the_current_intranet_in_a_new_tab(string menuItem, string address)
+    [InlineData("Corporate Medical Insurance", "/hr/corporate-medical-insurance")]
+    [InlineData("HOLIDAYS – 2026", "/hr/holidays")]
+    [InlineData("Organization Training", "/hr/organization-training")]
+    public async Task Menu_links_go_to_their_page_in_a_new_tab(string menuItem, string address)
     {
         var link = PageLinks.Find(await HeaderAsync(), menuItem);
 
@@ -40,27 +36,79 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     }
 
     [Fact]
-    public async Task Home_stays_in_the_same_tab()
+    public async Task Home_opens_in_a_new_tab_too()
     {
         var link = PageLinks.Find(await HeaderAsync(), "Home");
 
         Assert.Equal("/", link.Href);
-        Assert.False(link.OpensInNewTab);
+        Assert.True(link.OpensInNewTab);
     }
 
     [Theory]
-    [InlineData("More", "http://inside.itti.com:2020/inside/md-desk-2/")]
+    [InlineData("More", "/ceo-desk")]
     [InlineData("View all feedback", "/customer-feedback")]
-    [InlineData("Read More", "/rockstar-awards")]
+    [InlineData("View all birthdays", "/birthdays")]
     public async Task Landing_page_links_open_in_a_new_tab(string text, string address)
+    {
+        var link = PageLinks.Find(await MainContentAsync(), text);
+
+        Assert.Equal(address, link.Href);
+        Assert.True(link.OpensInNewTab, $"{text} should open in a new tab.");
+    }
+
+    [Fact]
+    public async Task Read_more_opens_the_awards_page_at_that_award()
+    {
+        var link = PageLinks.Find(await MainContentAsync(), "Read More");
+
+        Assert.Matches("^/rockstar-awards#award-\\d+$", link.Href);
+        Assert.True(link.OpensInNewTab);
+    }
+
+    [Theory]
+    [InlineData("/wedding-bells")]
+    [InlineData("/new-born")]
+    public async Task Celebration_cards_link_to_their_full_page(string address)
+    {
+        Assert.Contains(
+            PageLinks.All(await MainContentAsync()),
+            link => link.Text == "View all" && link.Href == address && link.OpensInNewTab);
+    }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/customer-feedback")]
+    [InlineData("/rockstar-awards")]
+    [InlineData("/birthdays")]
+    [InlineData("/wedding-bells")]
+    [InlineData("/new-born")]
+    [InlineData("/ceo-desk")]
+    [InlineData("/hr/corporate-medical-insurance")]
+    [InlineData("/hr/holidays")]
+    [InlineData("/hr/organization-training")]
+    [InlineData("/qa/quality-management-system")]
+    [InlineData("/applications")]
+    public async Task Every_link_on_a_portal_page_opens_in_a_new_tab(string path)
+    {
+        using var client = factory.CreateBrowser();
+        var html = await client.GetStringAsync(new Uri(path, UriKind.Relative));
+
+        // Links within the page and e-mail addresses are not pages, so they stay as they are.
+        var sameTab = PageLinks.All(html)
+            .Where(link => !link.Href.StartsWith('#') && !link.Href.StartsWith("mailto:", StringComparison.Ordinal))
+            .Where(link => !link.OpensInNewTab)
+            .Select(link => $"{link.Text} ({link.Href})")
+            .ToList();
+
+        Assert.True(sameTab.Count == 0, $"Links on {path} that open in the same tab: {string.Join(", ", sameTab)}");
+    }
+
+    private async Task<string> MainContentAsync()
     {
         using var client = factory.CreateBrowser();
         var html = await client.GetStringAsync(new Uri("/", UriKind.Relative));
 
-        var link = PageLinks.Find(html[html.IndexOf("<main", StringComparison.Ordinal)..], text);
-
-        Assert.Equal(address, link.Href);
-        Assert.True(link.OpensInNewTab, $"{text} should open in a new tab.");
+        return html[html.IndexOf("<main", StringComparison.Ordinal)..];
     }
 
     [Fact]
@@ -115,7 +163,7 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
                 < header.IndexOf("Process Asset Library", StringComparison.Ordinal));
         Assert.True(
             header.IndexOf("Corporate Medical Insurance", StringComparison.Ordinal)
-                < header.IndexOf("Travel desk", StringComparison.Ordinal));
+                < header.IndexOf("Organization Training", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -141,10 +189,8 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("/qa/quality-management-system")]
     [InlineData("/qa/process-asset-library")]
     [InlineData("/hr/corporate-medical-insurance")]
-    [InlineData("/hr/holidays-2026")]
+    [InlineData("/hr/holidays")]
     [InlineData("/hr/organization-training")]
-    [InlineData("/hr/useful-links")]
-    [InlineData("/hr/travel-desk")]
     [InlineData("/ceo-desk")]
     [InlineData("/customer-feedback")]
     [InlineData("/rockstar-awards")]

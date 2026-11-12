@@ -16,14 +16,6 @@ public sealed class MasterController(IPortalContentEditor editor, ILogger<Master
     [HttpGet("")]
     public IActionResult Index() => LocalRedirect(SectionUrl(MasterSections.All[0]));
 
-    [HttpGet("ceo-desk")]
-    public async Task<IActionResult> CeoDesk(CancellationToken cancellationToken) =>
-        View(new MasterTextForm
-        {
-            Key = PortalTextKey.CeoMessage,
-            Value = await editor.GetTextAsync(PortalTextKey.CeoMessage, cancellationToken),
-        });
-
     [HttpPost("text")]
     public async Task<IActionResult> SaveText(MasterTextForm form, CancellationToken cancellationToken)
     {

@@ -1,0 +1,123 @@
+@model MedicalInsurancePageViewModel
+@{
+    ViewData["Title"] = "Corporate Medical Insurance";
+    var policy = Model.Policy;
+}
+
+<partial name="_PageBanner" model="@("HR")" />
+
+<div class="portal-body">
+    <div class="container-xxl">
+        @if (policy is null)
+        {
+            <section class="panel detail">
+                <p class="detail__empty">The details of the company's medical insurance will appear here soon.</p>
+            </section>
+        }
+        else
+        {
+            var benefits = TextDisplay.Lines(policy.Benefits);
+            var steps = TextDisplay.Lines(policy.ClaimSteps);
+            var isCurrent = DateOnly.FromDateTime(DateTime.Today) is var today && today >= policy.ValidFrom && today <= policy.ValidTo;
+
+            <div class="detail-stack">
+                <section class="panel" aria-labelledby="policy-title">
+                    <div class="panel__head">
+                        <div>
+                            <h2 class="panel__title" id="policy-title">@policy.Insurer</h2>
+                            <p class="panel__subtitle">
+                                Valid @policy.ValidFrom.ToString("d MMM yyyy", CultureInfo.InvariantCulture)
+                                to @policy.ValidTo.ToString("d MMM yyyy", CultureInfo.InvariantCulture)
+                                <span class="tag @(isCurrent ? "tag--good" : null)">@(isCurrent ? "In force" : "Not in force")</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <dl class="fact-grid">
+                        <div><dt>Sum insured</dt><dd>@policy.SumInsured</dd></div>
+                        <div><dt>Who is covered</dt><dd>@policy.Coverage</dd></div>
+                        @if (policy.Administrator.Length > 0)
+                        {
+                            <div><dt>Claims administrator (TPA)</dt><dd>@policy.Administrator</dd></div>
+                        }
+                        @if (policy.PolicyNumber.Length > 0)
+                        {
+                            <div><dt>Policy number</dt><dd>@policy.PolicyNumber</dd></div>
+                        }
+                    </dl>
+
+                    @if (Model.Document is not null || LinkDisplay.IsWebAddress(policy.NetworkHospitalsLink))
+                    {
+                        <div class="action-row">
+                            @if (Model.Document is { } document)
+                            {
+                                <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")" new-tab="true">
+                                    <icon name="download" /> Download the policy (@FileSizeDisplay.Format(document.Size))
+                                </a>
+                            }
+                            @if (LinkDisplay.IsWebAddress(policy.NetworkHospitalsLink))
+                            {
+                                <a class="btn-portal btn-portal--light" href="@policy.NetworkHospitalsLink" new-tab="true">
+                                    Find a network hospital <icon name="arrow-right" />
+                                </a>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <div class="row g-4">
+                    @if (benefits.Count > 0)
+                    {
+                        <div class="col-lg-6">
+                            <section class="panel h-100" aria-labelledby="benefits-title">
+                                <h2 class="panel__title" id="benefits-title">Key benefits</h2>
+                                <ul class="check-list">
+                                    @foreach (var benefit in benefits)
+                                    {
+                                        <li>@benefit</li>
+                                    }
+                                </ul>
+                            </section>
+                        </div>
+                    }
+
+                    @if (steps.Count > 0)
+                    {
+                        <div class="col-lg-6">
+                            <section class="panel h-100" aria-labelledby="claims-title">
+                                <h2 class="panel__title" id="claims-title">How to make a claim</h2>
+                                <ol class="step-list">
+                                    @foreach (var step in steps)
+                                    {
+                                        <li>@step</li>
+                                    }
+                                </ol>
+                            </section>
+                        </div>
+                    }
+                </div>
+
+                @if (policy.HelpdeskName.Length > 0 || policy.HelpdeskPhone.Length > 0 || policy.HelpdeskEmail.Length > 0)
+                {
+                    <section class="panel" aria-labelledby="helpdesk-title">
+                        <h2 class="panel__title" id="helpdesk-title">Questions? Contact the helpdesk</h2>
+                        <dl class="fact-grid">
+                            @if (policy.HelpdeskName.Length > 0)
+                            {
+                                <div><dt>Contact</dt><dd>@policy.HelpdeskName</dd></div>
+                            }
+                            @if (policy.HelpdeskPhone.Length > 0)
+                            {
+                                <div><dt>Phone</dt><dd>@policy.HelpdeskPhone</dd></div>
+                            }
+                            @if (policy.HelpdeskEmail.Length > 0)
+                            {
+                                <div><dt>Email</dt><dd><a href="mailto:@policy.HelpdeskEmail">@policy.HelpdeskEmail</a></dd></div>
+                            }
+                        </dl>
+                    </section>
+                }
+            </div>
+        }
+    </div>
+</div>

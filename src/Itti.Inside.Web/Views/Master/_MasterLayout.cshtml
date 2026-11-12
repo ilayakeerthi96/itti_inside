@@ -20,19 +20,22 @@
     <div class="container-xxl">
         <div class="master">
             <nav class="master-nav" aria-label="Master sections">
-                <p class="master-nav__title">Update the main page</p>
-                <ul>
-                    @foreach (var link in MasterSections.All)
-                    {
-                        var isCurrent = Context.Request.Path.StartsWithSegments($"/master/{link.Path}");
+                @foreach (var group in MasterSections.All.GroupBy(section => section.Group))
+                {
+                    <p class="master-nav__title">@group.Key</p>
+                    <ul>
+                        @foreach (var link in group)
+                        {
+                            var isCurrent = Context.Request.Path.StartsWithSegments($"/master/{link.Path}");
 
-                        <li>
-                            <a class="master-nav__link @(isCurrent ? "is-current" : null)"
-                               aria-current="@(isCurrent ? "page" : null)"
-                               href="@Url.Content($"~/master/{link.Path}")">@link.Title</a>
-                        </li>
-                    }
-                </ul>
+                            <li>
+                                <a class="master-nav__link @(isCurrent ? "is-current" : null)"
+                                   aria-current="@(isCurrent ? "page" : null)"
+                                   href="@Url.Content($"~/master/{link.Path}")">@link.Title</a>
+                            </li>
+                        }
+                    </ul>
+                }
             </nav>
 
             <div class="master__content">
