@@ -74,8 +74,7 @@ namespace Itti.Inside.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("PostedOn")
                         .HasColumnType("date");

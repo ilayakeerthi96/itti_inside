@@ -26,7 +26,7 @@
 
         <div class="master-field">
             <label class="form-label" asp-for="Form.Message"></label>
-            <textarea class="form-control" asp-for="Form.Message" rows="12" maxlength="@ContentLimits.LongText" required></textarea>
+            <textarea class="form-control" asp-for="Form.Message" rows="12" maxlength="@ContentLimits.Letter" required></textarea>
             <div class="form-text">Leave an empty line between paragraphs.</div>
             <span class="master-field__error" asp-validation-for="Form.Message"></span>
         </div>

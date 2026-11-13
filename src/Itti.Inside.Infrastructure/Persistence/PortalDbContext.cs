@@ -51,7 +51,9 @@ public sealed class PortalDbContext : DbContext
         modelBuilder.Entity<CeoDeskPost>(post =>
         {
             post.Property(item => item.Title).HasMaxLength(ContentLimits.ShortText);
-            post.Property(item => item.Message).HasMaxLength(ContentLimits.LongText);
+
+            // nvarchar(MAX): a CEO's message can be a long letter. The master form sets the practical limit.
+            post.Property(item => item.Message);
             post.HasOne<PortalImage>().WithMany().HasForeignKey(item => item.ImageId).OnDelete(DeleteBehavior.SetNull);
         });
 

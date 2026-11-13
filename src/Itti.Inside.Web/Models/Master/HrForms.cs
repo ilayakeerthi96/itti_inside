@@ -16,7 +16,7 @@ public sealed class CeoDeskPostForm : IContentForm<CeoDeskPost>, IImageForm
     public DateOnly PostedOn { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
     [Required]
-    [StringLength(ContentLimits.LongText)]
+    [StringLength(ContentLimits.Letter)]
     public string Message { get; set; } = string.Empty;
 
     public int? ImageId { get; set; }

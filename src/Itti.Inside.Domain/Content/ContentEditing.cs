@@ -26,4 +26,10 @@ public static class ContentLimits
     public const int ShortText = 200;
     public const int Address = 500;
     public const int LongText = 4000;
+
+    /// <summary>
+    /// The CEO's Desk message, stored as nvarchar(MAX). The form stops at about 40 pages of text, so a
+    /// mistaken paste can't fill the database.
+    /// </summary>
+    public const int Letter = 100_000;
 }

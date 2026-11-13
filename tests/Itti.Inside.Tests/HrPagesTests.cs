@@ -277,6 +277,24 @@ public sealed class HrMasterTests(PortalWebFactory factory) : IClassFixture<Port
         Assert.Contains("An earlier word.", page, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Ceo_message_longer_than_4000_characters_is_kept_in_full()
+    {
+        using var admin = factory.CreateBrowser();
+        await admin.SignInAsAdminAsync();
+        var letter = string.Concat(Enumerable.Repeat("A long letter from the CEO. ", 300)).Trim();
+
+        using var response = await admin.PostFormAsync("/master/ceo-desk", "/master/ceo-desk",
+            new("Form.Title", "A very long message"), new("Form.PostedOn", Day(1)), new("Form.Message", letter));
+
+        using var visitor = factory.CreateBrowser();
+        var page = await visitor.GetStringAsync(new Uri("/ceo-desk", UriKind.Relative));
+
+        Assert.True(letter.Length > 8000);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains(letter, page, StringComparison.Ordinal);
+    }
+
     private static string Day(int offset) =>
         DateTime.Today.AddDays(offset).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
