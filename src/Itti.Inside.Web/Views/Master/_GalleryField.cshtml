@@ -1,0 +1,38 @@
+@* The pictures of a Rockstar Award: the current ones, each with Remove, and new ones to add. Needs enctype="multipart/form-data". *@
+@model RockstarAwardForm
+
+<div class="master-field">
+    <label class="form-label" for="Form_Images">Pictures</label>
+
+    @if (Model.ImageIds.Count > 0)
+    {
+        <ul class="master-gallery" aria-label="Current pictures">
+            @for (var index = 0; index < Model.ImageIds.Count; index++)
+            {
+                var imageId = Model.ImageIds[index];
+
+                <li class="master-gallery__item">
+                    <button type="button" class="photo-button" data-photo="@Url.Content($"~/media/{imageId}")" data-photo-group="master-award"
+                            data-photo-caption="Picture @(index + 1) of @Model.ImageIds.Count" aria-label="Show picture @(index + 1) larger">
+                        <img src="@Url.Content($"~/media/{imageId}")" alt="" width="120" height="120" loading="lazy" />
+                    </button>
+                    @if (index == 0)
+                    {
+                        <span class="tag master-gallery__cover">Cover</span>
+                    }
+                    <label class="master-gallery__remove">
+                        <input class="form-check-input" type="checkbox" name="Form.RemoveImageIds" value="@imageId" /> Remove
+                    </label>
+                </li>
+            }
+        </ul>
+    }
+
+    <input class="form-control" type="file" id="Form_Images" name="Form.Images" accept="@ImageUpload.Accept" multiple data-image-preview="award-preview" />
+    <div class="form-text">
+        Optional. Choose one or more JPG, PNG or WebP pictures, up to 5 MB each and @RockstarAwardRules.MaxImages per award.
+        New pictures come after the current ones. The first picture is the cover on the main page.
+    </div>
+    <ul class="master-gallery master-gallery--preview" id="award-preview" aria-label="Pictures you chose" hidden></ul>
+    <span class="master-field__error" asp-validation-for="Images"></span>
+</div>

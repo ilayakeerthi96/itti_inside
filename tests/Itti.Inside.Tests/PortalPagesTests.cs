@@ -20,40 +20,32 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     }
 
     [Theory]
-    [InlineData("Applications", "https://inside.itti.com/application-wp.asp")]
-    [InlineData("Quality Management System", "https://inside.itti.com/qms_new/index.asp")]
-    [InlineData("Process Asset Library", "https://inside.itti.com/PALibrary/default.asp")]
-    [InlineData("Logout", "https://inside.itti.com/Logout.asp")]
-    [InlineData("Corporate Medical Insurance", "/hr/corporate-medical-insurance")]
-    [InlineData("HOLIDAYS – 2026", "/hr/holidays")]
-    [InlineData("Organization Training", "/hr/organization-training")]
-    public async Task Menu_links_go_to_their_page_in_a_new_tab(string menuItem, string address)
+    [InlineData("Applications", "https://inside.itti.com/application-wp.asp", true)]
+    [InlineData("Quality Management System", "https://inside.itti.com/qms_new/index.asp", true)]
+    [InlineData("Process Asset Library", "https://inside.itti.com/PALibrary/default.asp", true)]
+    [InlineData("Organization Training", "https://training.ittiapps.cloud/#/login", true)]
+    [InlineData("Home", "/", false)]
+    [InlineData("Corporate Medical Insurance", "/hr/corporate-medical-insurance", false)]
+    [InlineData("HOLIDAYS – 2026", "/hr/holidays", false)]
+    [InlineData("Logout", "https://inside.itti.com/Logout.asp", false)]
+    public async Task Menu_links_go_to_their_page(string menuItem, string address, bool newTab)
     {
         var link = PageLinks.Find(await HeaderAsync(), menuItem);
 
         Assert.Equal(address, link.Href);
-        Assert.True(link.OpensInNewTab, $"{menuItem} should open in a new tab.");
-    }
-
-    [Fact]
-    public async Task Home_opens_in_a_new_tab_too()
-    {
-        var link = PageLinks.Find(await HeaderAsync(), "Home");
-
-        Assert.Equal("/", link.Href);
-        Assert.True(link.OpensInNewTab);
+        Assert.Equal(newTab, link.OpensInNewTab);
     }
 
     [Theory]
     [InlineData("More", "/ceo-desk")]
     [InlineData("View all feedback", "/customer-feedback")]
     [InlineData("View all birthdays", "/birthdays")]
-    public async Task Landing_page_links_open_in_a_new_tab(string text, string address)
+    public async Task Landing_page_links_open_in_the_same_tab(string text, string address)
     {
         var link = PageLinks.Find(await MainContentAsync(), text);
 
         Assert.Equal(address, link.Href);
-        Assert.True(link.OpensInNewTab, $"{text} should open in a new tab.");
+        Assert.False(link.OpensInNewTab, $"{text} should open in the same tab.");
     }
 
     [Fact]
@@ -62,7 +54,7 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
         var link = PageLinks.Find(await MainContentAsync(), "Read More");
 
         Assert.Matches("^/rockstar-awards#award-\\d+$", link.Href);
-        Assert.True(link.OpensInNewTab);
+        Assert.False(link.OpensInNewTab);
     }
 
     [Theory]
@@ -72,7 +64,7 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     {
         Assert.Contains(
             PageLinks.All(await MainContentAsync()),
-            link => link.Text == "View all" && link.Href == address && link.OpensInNewTab);
+            link => link.Text == "View all" && link.Href == address && !link.OpensInNewTab);
     }
 
     [Theory]
@@ -88,19 +80,14 @@ public sealed class PortalPagesTests(PortalWebFactory factory) : IClassFixture<P
     [InlineData("/hr/organization-training")]
     [InlineData("/qa/quality-management-system")]
     [InlineData("/applications")]
-    public async Task Every_link_on_a_portal_page_opens_in_a_new_tab(string path)
+    public async Task Only_applications_qa_and_training_open_in_a_new_tab(string path)
     {
         using var client = factory.CreateBrowser();
         var html = await client.GetStringAsync(new Uri(path, UriKind.Relative));
 
-        // Links within the page and e-mail addresses are not pages, so they stay as they are.
-        var sameTab = PageLinks.All(html)
-            .Where(link => !link.Href.StartsWith('#') && !link.Href.StartsWith("mailto:", StringComparison.Ordinal))
-            .Where(link => !link.OpensInNewTab)
-            .Select(link => $"{link.Text} ({link.Href})")
-            .ToList();
+        var newTab = PageLinks.All(html).Where(link => link.OpensInNewTab).Select(link => link.Text).Order().ToList();
 
-        Assert.True(sameTab.Count == 0, $"Links on {path} that open in the same tab: {string.Join(", ", sameTab)}");
+        Assert.Equal(["Applications", "Organization Training", "Process Asset Library", "Quality Management System"], newTab);
     }
 
     private async Task<string> MainContentAsync()

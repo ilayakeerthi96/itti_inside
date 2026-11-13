@@ -62,9 +62,9 @@ public sealed record SeedCeoDeskPost(string Title, string Message);
 /// <summary>A congratulations board as written in the seed file: plain lines, dated when they are added.</summary>
 public sealed record SeedCelebrationBoard(IReadOnlyList<string> Announcements, string Closing);
 
-/// <summary>A menu entry as written in the seed file, where children are optional.</summary>
-public sealed record SeedMenuItem(string Title, string? Path, IReadOnlyList<SeedMenuItem>? Children)
+/// <summary>A menu entry as written in the seed file, where children and newTab are optional.</summary>
+public sealed record SeedMenuItem(string Title, string? Path, IReadOnlyList<SeedMenuItem>? Children, bool NewTab = false)
 {
     public NavigationItem ToNavigationItem() =>
-        new(Title, Path, Children?.Select(child => child.ToNavigationItem()).ToArray() ?? []);
+        new(Title, Path, Children?.Select(child => child.ToNavigationItem()).ToArray() ?? [], NewTab);
 }

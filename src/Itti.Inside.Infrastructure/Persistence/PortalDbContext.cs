@@ -41,6 +41,8 @@ public sealed class PortalDbContext : DbContext
 
     public DbSet<PortalImage> PortalImages => Set<PortalImage>();
 
+    public DbSet<RockstarAwardImage> RockstarAwardImages => Set<RockstarAwardImage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -126,7 +128,15 @@ public sealed class PortalDbContext : DbContext
         {
             award.Property(item => item.Title).HasMaxLength(ContentLimits.ShortText);
             award.Property(item => item.Excerpt).HasMaxLength(ContentLimits.LongText);
-            award.HasOne<PortalImage>().WithMany().HasForeignKey(item => item.ImageId).OnDelete(DeleteBehavior.SetNull);
+            award.Ignore(item => item.ImageIds);
+        });
+
+        // Deleting an award or one of its pictures removes the link between them.
+        modelBuilder.Entity<RockstarAwardImage>(link =>
+        {
+            link.HasOne<RockstarAward>().WithMany().HasForeignKey(item => item.AwardId).OnDelete(DeleteBehavior.Cascade);
+            link.HasOne<PortalImage>().WithMany().HasForeignKey(item => item.ImageId).OnDelete(DeleteBehavior.Cascade);
+            link.HasIndex(item => new { item.AwardId, item.Position });
         });
 
         modelBuilder.Entity<WeddingAnnouncement>().Property(item => item.Text).HasMaxLength(ContentLimits.ShortText);

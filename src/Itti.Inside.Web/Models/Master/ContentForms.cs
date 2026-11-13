@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Itti.Inside.Domain.Content;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Itti.Inside.Web.Models.Master;
 
@@ -124,7 +125,7 @@ public sealed class BirthdayForm : IContentForm<BirthdayEntry>
     public BirthdayEntry ToItem() => new(Id, EmployeeId.Trim(), Name.Trim(), Day, Email.Trim(), Location.Trim(), PostedOn);
 }
 
-public sealed class RockstarAwardForm : IContentForm<RockstarAward>, IImageForm
+public sealed class RockstarAwardForm : IContentForm<RockstarAward>
 {
     public int Id { get; set; }
 
@@ -141,22 +142,25 @@ public sealed class RockstarAwardForm : IContentForm<RockstarAward>, IImageForm
     [Display(Name = "Announcement")]
     public string Excerpt { get; set; } = string.Empty;
 
-    public int? ImageId { get; set; }
+    /// <summary>The award's current pictures, in order. Filled in from the database, never from the post.</summary>
+    [BindNever]
+    public IReadOnlyList<int> ImageIds { get; set; } = [];
 
-    [Display(Name = "Picture")]
-    public IFormFile? Image { get; set; }
+    /// <summary>New pictures to add after the current ones.</summary>
+    [Display(Name = "Pictures")]
+    public List<IFormFile> Images { get; set; } = [];
 
-    [Display(Name = "Remove the picture")]
-    public bool RemoveImage { get; set; }
+    /// <summary>Current pictures ticked for removal.</summary>
+    public List<int> RemoveImageIds { get; set; } = [];
 
     public void Load(RockstarAward item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        (Id, Title, PublishedOn, Excerpt, ImageId) = item;
+        (Id, Title, PublishedOn, Excerpt) = item;
     }
 
-    public RockstarAward ToItem() => new(Id, Title.Trim(), PublishedOn, Excerpt.Trim(), ImageId);
+    public RockstarAward ToItem() => new(Id, Title.Trim(), PublishedOn, Excerpt.Trim());
 }
 
 public sealed class WeddingAnnouncementForm : IContentForm<WeddingAnnouncement>

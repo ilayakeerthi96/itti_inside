@@ -115,4 +115,25 @@ public sealed class SqlPortalContentEditor(PortalDbContext context) : IPortalCon
 
     public Task DeleteImageAsync(int id, CancellationToken cancellationToken) =>
         context.PortalImages.Where(image => image.Id == id).ExecuteDeleteAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<int>> GetAwardImageIdsAsync(int awardId, CancellationToken cancellationToken) =>
+        await context.RockstarAwardImages
+            .Where(link => link.AwardId == awardId)
+            .OrderBy(link => link.Position)
+            .ThenBy(link => link.Id)
+            .Select(link => link.ImageId)
+            .ToListAsync(cancellationToken);
+
+    public async Task SetAwardImagesAsync(int awardId, IReadOnlyList<int> imageIds, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(imageIds);
+
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        await context.RockstarAwardImages.Where(link => link.AwardId == awardId).ExecuteDeleteAsync(cancellationToken);
+        context.RockstarAwardImages.AddRange(imageIds.Select((imageId, position) => new RockstarAwardImage(0, awardId, imageId, position)));
+
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
 }

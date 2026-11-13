@@ -366,9 +366,6 @@ namespace Itti.Inside.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
-                    b.Property<int?>("ImageId")
-                        .HasColumnType("int");
-
                     b.Property<DateOnly>("PublishedOn")
                         .HasColumnType("date");
 
@@ -379,9 +376,33 @@ namespace Itti.Inside.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("RockstarAwards");
+                });
+
+            modelBuilder.Entity("Itti.Inside.Domain.Content.RockstarAwardImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AwardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("ImageId");
 
-                    b.ToTable("RockstarAwards");
+                    b.HasIndex("AwardId", "Position");
+
+                    b.ToTable("RockstarAwardImages");
                 });
 
             modelBuilder.Entity("Itti.Inside.Domain.Content.TrainingSession", b =>
@@ -474,12 +495,19 @@ namespace Itti.Inside.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("Itti.Inside.Domain.Content.RockstarAward", b =>
+            modelBuilder.Entity("Itti.Inside.Domain.Content.RockstarAwardImage", b =>
                 {
+                    b.HasOne("Itti.Inside.Domain.Content.RockstarAward", null)
+                        .WithMany()
+                        .HasForeignKey("AwardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Itti.Inside.Domain.Content.PortalImage", null)
                         .WithMany()
                         .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

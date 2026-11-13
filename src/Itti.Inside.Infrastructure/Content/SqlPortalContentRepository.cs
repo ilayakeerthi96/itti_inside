@@ -45,17 +45,37 @@ public sealed class SqlPortalContentRepository(PortalDbContext context) : IPorta
         return new BirthdayCalendar(period, entries);
     }
 
-    public Task<PagedResult<RockstarAward>> GetRockstarAwardsAsync(int page, int pageSize, CancellationToken cancellationToken) =>
-        context.RockstarAwards
+    public async Task<PagedResult<RockstarAward>> GetRockstarAwardsAsync(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        var awards = await context.RockstarAwards
             .OrderByDescending(award => award.PublishedOn)
             .ThenByDescending(award => award.Id)
             .ToPageAsync(page, pageSize, cancellationToken);
 
+        return awards with { Items = await WithImagesAsync(awards.Items, cancellationToken) };
+    }
+
     public async Task<IReadOnlyList<RockstarAward>> GetAllRockstarAwardsAsync(CancellationToken cancellationToken) =>
-        await context.RockstarAwards
-            .OrderByDescending(award => award.PublishedOn)
-            .ThenByDescending(award => award.Id)
+        await WithImagesAsync(
+            await context.RockstarAwards
+                .OrderByDescending(award => award.PublishedOn)
+                .ThenByDescending(award => award.Id)
+                .ToListAsync(cancellationToken),
+            cancellationToken);
+
+    // One query for the pictures of all the awards on show, rather than one per award.
+    private async Task<IReadOnlyList<RockstarAward>> WithImagesAsync(IReadOnlyList<RockstarAward> awards, CancellationToken cancellationToken)
+    {
+        var awardIds = awards.Select(award => award.Id).ToList();
+        var links = await context.RockstarAwardImages
+            .Where(link => awardIds.Contains(link.AwardId))
+            .OrderBy(link => link.Position)
+            .ThenBy(link => link.Id)
             .ToListAsync(cancellationToken);
+        var imagesByAward = links.ToLookup(link => link.AwardId, link => link.ImageId);
+
+        return awards.Select(award => award with { ImageIds = imagesByAward[award.Id].ToList() }).ToList();
+    }
 
     public async Task<CelebrationBoard> GetWeddingBellsAsync(CancellationToken cancellationToken)
     {

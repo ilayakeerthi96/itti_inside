@@ -30,6 +30,18 @@ public abstract class MasterSectionController<TItem, TForm>(IPortalContentEditor
     /// <summary>Lets a section give its view more to show, such as an uploaded file.</summary>
     protected virtual Task AddViewDataAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
+    /// <summary>Fills in what the form shows but doesn't post, such as the item's current pictures.</summary>
+    protected virtual Task PrepareFormAsync(TForm form, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>Runs once the form is valid, before the item is saved. False shows the form again with its problems.</summary>
+    protected virtual Task<bool> BeforeSaveAsync(TForm form, CancellationToken cancellationToken) => Task.FromResult(true);
+
+    /// <summary>Runs after the save. <paramref name="saved"/> is false when the item was deleted meanwhile.</summary>
+    protected virtual Task AfterSaveAsync(TForm form, TItem item, bool saved, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>Runs before an item is deleted.</summary>
+    protected virtual Task BeforeDeleteAsync(int id, CancellationToken cancellationToken) => Task.CompletedTask;
+
     protected string? CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     [HttpGet("")]
@@ -48,6 +60,8 @@ public abstract class MasterSectionController<TItem, TForm>(IPortalContentEditor
 
             form.Load(item);
         }
+
+        await PrepareFormAsync(form, cancellationToken);
 
         return await ShowAsync(form, cancellationToken);
     }
@@ -68,7 +82,9 @@ public abstract class MasterSectionController<TItem, TForm>(IPortalContentEditor
             imageForm.ImageId = currentImageId;
         }
 
-        if (!ModelState.IsValid)
+        await PrepareFormAsync(form, cancellationToken);
+
+        if (!ModelState.IsValid || !await BeforeSaveAsync(form, cancellationToken))
         {
             return await ShowAsync(form, cancellationToken);
         }
@@ -102,6 +118,8 @@ public abstract class MasterSectionController<TItem, TForm>(IPortalContentEditor
             Logger.ItemSaved(CurrentUserId, SectionView, item.Id);
         }
 
+        await AfterSaveAsync(form, item, saved, cancellationToken);
+
         // A picture nothing uses any more goes too: the old one after a replace or remove, or the new one
         // when the item was deleted while the form was open.
         if (imageForm is not null)
@@ -125,6 +143,7 @@ public abstract class MasterSectionController<TItem, TForm>(IPortalContentEditor
     {
         var imageId = (await Editor.FindAsync<TItem>(id, cancellationToken) as IHasImage)?.ImageId;
 
+        await BeforeDeleteAsync(id, cancellationToken);
         await Editor.DeleteAsync<TItem>(id, cancellationToken);
 
         if (imageId is { } unused)

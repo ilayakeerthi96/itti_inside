@@ -25,7 +25,7 @@
                     <dd>
                         @if (LinkDisplay.IsWebAddress(Model.Venue))
                         {
-                            <a href="@Model.Venue" new-tab="true">Join online</a>
+                            <a href="@Model.Venue">Join online</a>
                         }
                         else
                         {
@@ -54,7 +54,7 @@
             <p class="training__register">
                 @if (LinkDisplay.IsWebAddress(Model.Registration))
                 {
-                    <a class="panel__link" href="@Model.Registration" new-tab="true">Register <icon name="arrow-right" /></a>
+                    <a class="panel__link" href="@Model.Registration">Register <icon name="arrow-right" /></a>
                 }
                 else if (LinkDisplay.IsEmailAddress(Model.Registration))
                 {

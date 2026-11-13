@@ -24,7 +24,7 @@
                             {
                                 <a class="year-links__link @(year == Model.Year ? "is-current" : null)"
                                    aria-current="@(year == Model.Year ? "page" : null)"
-                                   href="@Url.Content($"~/hr/holidays?year={year}")" new-tab="true">@year</a>
+                                   href="@Url.Content($"~/hr/holidays?year={year}")">@year</a>
                             }
                         </nav>
                     }
@@ -85,7 +85,7 @@
                 @if (Model.Document is { } document)
                 {
                     <div class="action-row">
-                        <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")" new-tab="true">
+                        <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")">
                             <icon name="download" /> Download the holiday list (@FileSizeDisplay.Format(document.Size))
                         </a>
                     </div>

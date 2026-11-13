@@ -190,7 +190,7 @@
     "policyNumber": "SAMPLE-0000",
     "validFrom": "2026-04-01",
     "validTo": "2027-03-31",
-    "sumInsured": "₹3,00,000 per family per year (sample)",
+    "sumInsured": "₹7,00,000 per family per year (sample)",
     "coverage": "Employee, spouse and up to two children",
     "benefits": "Cashless treatment at network hospitals\nPre-existing illnesses covered from day one\nMaternity cover, including newborn care\nHospital room rent up to 1% of the sum insured per day",
     "claimSteps": "For a planned stay, ask the hospital's insurance desk for pre-authorisation at least 48 hours ahead\nShow your e-card and a photo ID at admission\nFor an emergency, inform the helpdesk within 24 hours of admission\nFor reimbursement, send the bills and discharge summary to the helpdesk within 30 days of discharge",
@@ -200,15 +200,16 @@
     "helpdeskEmail": "hr.helpdesk@example.com"
   },
   // A path starting with / is a page on this site. A full http:// or https:// address goes to that
-  // site, here the pages of the current intranet. Every entry except Home opens in a new tab.
+  // site, here the pages of the current intranet. "newTab": true opens an entry in a new tab;
+  // every other entry opens in the same tab.
   "menu": [
     { "title": "Home", "path": "/" },
-    { "title": "Applications", "path": "https://inside.itti.com/application-wp.asp" },
+    { "title": "Applications", "path": "https://inside.itti.com/application-wp.asp", "newTab": true },
     {
       "title": "QA",
       "children": [
-        { "title": "Quality Management System", "path": "https://inside.itti.com/qms_new/index.asp" },
-        { "title": "Process Asset Library", "path": "https://inside.itti.com/PALibrary/default.asp" }
+        { "title": "Quality Management System", "path": "https://inside.itti.com/qms_new/index.asp", "newTab": true },
+        { "title": "Process Asset Library", "path": "https://inside.itti.com/PALibrary/default.asp", "newTab": true }
       ]
     },
     {
@@ -216,7 +217,7 @@
       "children": [
         { "title": "Corporate Medical Insurance", "path": "/hr/corporate-medical-insurance" },
         { "title": "HOLIDAYS – 2026", "path": "/hr/holidays" },
-        { "title": "Organization Training", "path": "/hr/organization-training" }
+        { "title": "Organization Training", "path": "https://training.ittiapps.cloud/#/login", "newTab": true }
       ]
     },
     { "title": "Logout", "path": "https://inside.itti.com/Logout.asp" }

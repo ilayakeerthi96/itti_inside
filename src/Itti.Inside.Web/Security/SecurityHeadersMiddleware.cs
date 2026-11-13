@@ -4,11 +4,12 @@ namespace Itti.Inside.Web.Security;
 public sealed class SecurityHeadersMiddleware(RequestDelegate next, IWebHostEnvironment environment)
 {
     // Everything is served from this site: no CDNs, no inline scripts and no inline styles.
+    // blob: lets the master page preview a picture the admin has chosen, before it is uploaded.
     private const string ContentSecurityPolicy =
         "default-src 'none'; " +
         "script-src 'self'; " +
         "style-src 'self'; " +
-        "img-src 'self' data:; " +
+        "img-src 'self' data: blob:; " +
         "font-src 'self'; " +
         "connect-src 'self'; " +
         "form-action 'self'; " +

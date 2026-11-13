@@ -51,13 +51,13 @@
                         <div class="action-row">
                             @if (Model.Document is { } document)
                             {
-                                <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")" new-tab="true">
+                                <a class="btn-portal" href="@Url.Content($"~/documents/{document.Key}")">
                                     <icon name="download" /> Download the policy (@FileSizeDisplay.Format(document.Size))
                                 </a>
                             }
                             @if (LinkDisplay.IsWebAddress(policy.NetworkHospitalsLink))
                             {
-                                <a class="btn-portal btn-portal--light" href="@policy.NetworkHospitalsLink" new-tab="true">
+                                <a class="btn-portal btn-portal--light" href="@policy.NetworkHospitalsLink">
                                     Find a network hospital <icon name="arrow-right" />
                                 </a>
                             }

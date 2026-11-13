@@ -7,15 +7,13 @@
     // Menu entries either open a page on this site or go to another site, such as the current intranet.
     string Href(NavigationItem item) => item.IsExternal ? item.Path! : Url.Content($"~{item.Path}");
 
-    // On the portal every link opens in a new tab, Home and the logo included, so the page stays open
-    // behind it. The admin header on the master pages keeps its links in the same tab.
-    var newTab = !isAdminHeader;
+    // Only the entries marked newTab in the menu file open in a new tab: Applications, QA and Training.
 }
 
 <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Main">
         <div class="container-xxl">
-            <a class="navbar-brand" href="@Url.Content(isAdminHeader ? "~/master" : "~/")" new-tab="@newTab">
+            <a class="navbar-brand" href="@Url.Content(isAdminHeader ? "~/master" : "~/")">
                 <img src="~/images/brand/inside-logo.png" alt="ITTI Inside" width="167" height="78" />
             </a>
 
@@ -55,7 +53,7 @@
                                         {
                                             <li>
                                                 <a class="dropdown-item @(Model.IsActive(child) ? "active" : null)"
-                                                   href="@Href(child)" new-tab="@newTab">@child.Title</a>
+                                                   href="@Href(child)" new-tab="@child.OpensInNewTab">@child.Title</a>
                                             </li>
                                         }
                                     </ul>
@@ -66,7 +64,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link @(isActive ? "active" : null)"
                                        aria-current="@(isActive ? "page" : null)"
-                                       href="@Href(item)" new-tab="@newTab">@item.Title</a>
+                                       href="@Href(item)" new-tab="@item.OpensInNewTab">@item.Title</a>
                                 </li>
                             }
                         }

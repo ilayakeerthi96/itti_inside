@@ -11,7 +11,7 @@
             @foreach (var application in Model)
             {
                 <li>
-                    <a class="app-tile" href="@Url.Content($"~{application.Path}")" new-tab="true">
+                    <a class="app-tile" href="@Url.Content($"~{application.Path}")">
                         <span class="app-tile__icon"><icon name="@application.Icon" /></span>
                         <span class="app-tile__name">@application.Name</span>
                         <span class="app-tile__text">@application.Description</span>

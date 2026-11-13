@@ -11,9 +11,9 @@
         @foreach (var award in Model.RockstarAwards.Items)
         {
             <article class="award" data-pager-item>
-                @if (award.ImageId is { } imageId)
+                @if (award.ImageIds.Count > 0)
                 {
-                    <img class="award__image" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @award.Title" width="320" height="200" loading="lazy" />
+                    <partial name="_AwardPictures" model="award" />
                 }
                 else
                 {
@@ -24,7 +24,7 @@
                     @award.PublishedOn.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)
                 </time>
                 <p class="award__excerpt">@award.Excerpt</p>
-                <a class="panel__link" href="@Url.Content($"~/rockstar-awards#award-{award.Id}")" new-tab="true">Read More <icon name="arrow-right" /></a>
+                <a class="panel__link" href="@Url.Content($"~/rockstar-awards#award-{award.Id}")">Read More <icon name="arrow-right" /></a>
             </article>
         }
     </div>

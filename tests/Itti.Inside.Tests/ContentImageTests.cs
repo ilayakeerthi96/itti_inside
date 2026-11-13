@@ -41,67 +41,78 @@ public sealed partial class ContentImageTests(PortalWebFactory factory) : IClass
     }
 
     [Fact]
-    public async Task Award_picture_shows_on_the_card_and_the_awards_page()
+    public async Task Award_pictures_show_on_the_card_and_the_awards_page()
     {
         using var admin = await AdminAsync();
 
-        await PostAsync(admin, "/master/rockstar-awards", ("winner.jpg", Jpeg),
-            ("Form.Title", "Award with a picture"), ("Form.PublishedOn", "2031-01-01"), ("Form.Excerpt", "Well done."));
+        await PostAwardAsync(admin, [("winner.jpg", Jpeg), ("team.png", Png), ("stage.png", Png)],
+            ("Form.Title", "Award with pictures"), ("Form.PublishedOn", "2031-01-01"), ("Form.Excerpt", "Well done."));
 
-        var card = Award(await PageAsync("/"), "Award with a picture");
-        var page = Award(await PageAsync("/rockstar-awards"), "Award with a picture");
+        var card = Award(await PageAsync("/"), "Award with pictures");
+        var page = Award(await PageAsync("/rockstar-awards"), "Award with pictures");
 
         Assert.Contains("class=\"award__image\"", card, StringComparison.Ordinal);
         Assert.DoesNotContain("award__star", card, StringComparison.Ordinal);
-        Assert.Equal(ImageIdIn(card), ImageIdIn(page));
+        Assert.Contains("+2 more", card, StringComparison.Ordinal);
+        Assert.Equal(3, ImageIdsIn(card).Count);
+        Assert.Equal(ImageIdsIn(card), ImageIdsIn(page));
+        Assert.Contains("award__strip", page, StringComparison.Ordinal);
     }
 
     [Fact]
-    public async Task Editing_without_a_new_picture_keeps_the_current_one()
+    public async Task Every_award_picture_opens_in_the_preview()
     {
         using var admin = await AdminAsync();
-        await PostAsync(admin, "/master/rockstar-awards", ("keep.png", Png),
-            ("Form.Title", "Award to edit"), ("Form.PublishedOn", "2031-02-01"), ("Form.Excerpt", "Before."));
-        var awardId = await AwardIdAsync("Award to edit");
-        var imageId = ImageIdIn(Award(await PageAsync("/rockstar-awards"), "Award to edit"));
+        await PostAwardAsync(admin, [("one.png", Png), ("two.png", Png)],
+            ("Form.Title", "Award to preview"), ("Form.PublishedOn", "2031-01-02"), ("Form.Excerpt", "Text."));
 
-        await PostAsync(admin, "/master/rockstar-awards", null,
-            ("Form.Id", awardId), ("Form.Title", "Award to edit"), ("Form.PublishedOn", "2031-02-01"), ("Form.Excerpt", "After."));
+        var card = Award(await PageAsync("/"), "Award to preview");
 
-        var award = Award(await PageAsync("/rockstar-awards"), "Award to edit");
-        Assert.Contains("After.", award, StringComparison.Ordinal);
-        Assert.Equal(imageId, ImageIdIn(award));
+        // The cover is the button. The second picture waits, hidden, for the preview to page to it.
+        Assert.Equal(2, PreviewPhoto().Count(card));
+        Assert.Contains("<button type=\"button\" class=\"photo-button award__cover\" data-photo=", card, StringComparison.Ordinal);
+        Assert.Contains("<span hidden data-photo=", card, StringComparison.Ordinal);
     }
 
     [Fact]
-    public async Task Replacing_removing_and_deleting_leave_no_unused_pictures()
+    public async Task Adding_keeps_the_current_pictures_and_removing_deletes_them()
     {
         using var admin = await AdminAsync();
-        await PostAsync(admin, "/master/rockstar-awards", ("first.png", Png),
+        await PostAwardAsync(admin, [("first.png", Png)],
             ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Text."));
         var awardId = await AwardIdAsync("Award with changing pictures");
-        var first = ImageIdIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures"));
+        var first = ImageIdsIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures")).Single();
 
-        await PostAsync(admin, "/master/rockstar-awards", ("second.jpg", Jpeg),
-            ("Form.Id", awardId), ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Text."));
-        var second = ImageIdIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures"));
+        await PostAwardAsync(admin, [("second.jpg", Jpeg)],
+            ("Form.Id", awardId), ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Edited."));
+        var both = ImageIdsIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures"));
 
-        Assert.NotEqual(first, second);
+        Assert.Equal(2, both.Count);
+        Assert.Equal(first, both[0]);
+
+        await PostAwardAsync(admin, [],
+            ("Form.Id", awardId), ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Edited."),
+            ("Form.RemoveImageIds", first.ToString(CultureInfo.InvariantCulture)));
+
+        Assert.Equal([both[1]], ImageIdsIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures")));
         Assert.False(await ImageExistsAsync(first));
-
-        await PostAsync(admin, "/master/rockstar-awards", null,
-            ("Form.Id", awardId), ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Text."), ("Form.RemoveImage", "true"));
-
-        Assert.Contains("award__star", Award(await PageAsync("/rockstar-awards"), "Award with changing pictures"), StringComparison.Ordinal);
-        Assert.False(await ImageExistsAsync(second));
-
-        await PostAsync(admin, "/master/rockstar-awards", ("third.png", Png),
-            ("Form.Id", awardId), ("Form.Title", "Award with changing pictures"), ("Form.PublishedOn", "2031-03-01"), ("Form.Excerpt", "Text."));
-        var third = ImageIdIn(Award(await PageAsync("/rockstar-awards"), "Award with changing pictures"));
 
         await admin.PostFormAsync("/master/rockstar-awards", $"/master/rockstar-awards/{awardId}/delete");
 
-        Assert.False(await ImageExistsAsync(third));
+        Assert.False(await ImageExistsAsync(both[1]));
+    }
+
+    [Fact]
+    public async Task An_award_takes_at_most_ten_pictures()
+    {
+        using var admin = await AdminAsync();
+
+        using var response = await PostAwardAsync(admin, Enumerable.Range(1, 11).Select(index => ($"photo{index}.png", Png)).ToArray(),
+            ("Form.Title", "Award with too many pictures"), ("Form.PublishedOn", "2031-05-01"), ("Form.Excerpt", "Text."));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("up to 10 pictures", await response.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+        Assert.DoesNotContain("Award with too many pictures", await PageAsync("/rockstar-awards"), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -110,14 +121,34 @@ public sealed partial class ContentImageTests(PortalWebFactory factory) : IClass
     public async Task Files_that_are_not_photos_are_refused_and_nothing_is_saved(string fileName, string problem)
     {
         using var admin = await AdminAsync();
+        int picturesBefore;
+        using (var scope = factory.Services.CreateScope())
+        {
+            picturesBefore = await scope.ServiceProvider.GetRequiredService<PortalDbContext>().PortalImages.CountAsync();
+        }
 
-        using var response = await PostAsync(admin, "/master/rockstar-awards", (fileName, "<svg onload=alert(1)>"u8.ToArray()),
+        using var response = await PostAwardAsync(admin, [("good.png", Png), (fileName, "<svg onload=alert(1)>"u8.ToArray())],
             ("Form.Title", $"Refused {fileName}"), ("Form.PublishedOn", "2031-04-01"), ("Form.Excerpt", "Text."));
         var html = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains(problem, html, StringComparison.Ordinal);
         Assert.DoesNotContain($"Refused {fileName}", await PageAsync("/rockstar-awards"), StringComparison.Ordinal);
+
+        using var after = factory.Services.CreateScope();
+        Assert.Equal(picturesBefore, await after.ServiceProvider.GetRequiredService<PortalDbContext>().PortalImages.CountAsync());
+    }
+
+    [Fact]
+    public async Task Ceo_picture_opens_in_the_preview()
+    {
+        using var admin = await AdminAsync();
+        await PostAsync(admin, "/master/ceo-desk", ("ceo.png", Png),
+            ("Form.Title", "Message to preview"), ("Form.PostedOn", Day(2)), ("Form.Message", "Text."));
+
+        var card = Section(await PageAsync("/"), "ceo-desk");
+
+        Assert.Matches("<button type=\"button\" class=\"photo-button\" data-photo=\"/media/\\d+\"", card);
     }
 
     [Fact]
@@ -172,6 +203,28 @@ public sealed partial class ContentImageTests(PortalWebFactory factory) : IClass
         return await client.PostAsync(new Uri(section, UriKind.Relative), form);
     }
 
+    private static async Task<HttpResponseMessage> PostAwardAsync(
+        HttpClient client, (string Name, byte[] Content)[] images, params (string Name, string Value)[] fields)
+    {
+        var token = await client.GetAntiforgeryTokenAsync("/master/rockstar-awards");
+
+        using var form = new MultipartFormDataContent { { new StringContent(token), "__RequestVerificationToken" } };
+
+        foreach (var (name, value) in fields)
+        {
+            form.Add(new StringContent(value), name);
+        }
+
+        foreach (var (name, content) in images)
+        {
+            var file = new ByteArrayContent(content);
+            file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            form.Add(file, "Form.Images", name);
+        }
+
+        return await client.PostAsync(new Uri("/master/rockstar-awards", UriKind.Relative), form);
+    }
+
     private async Task<string> PageAsync(string path)
     {
         using var visitor = factory.CreateBrowser();
@@ -218,6 +271,13 @@ public sealed partial class ContentImageTests(PortalWebFactory factory) : IClass
     private static int ImageIdIn(string html) =>
         int.Parse(MediaLink().Match(html).Groups[1].Value, CultureInfo.InvariantCulture);
 
+    // Each picture once, in page order.
+    private static List<int> ImageIdsIn(string html) =>
+        MediaLink().Matches(html).Select(match => int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)).Distinct().ToList();
+
     [GeneratedRegex("/media/(\\d+)")]
     private static partial Regex MediaLink();
+
+    [GeneratedRegex("data-photo=\"/media/\\d+\"")]
+    private static partial Regex PreviewPhoto();
 }

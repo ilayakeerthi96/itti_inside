@@ -91,7 +91,7 @@ public sealed class HrPagesTests(PortalWebFactory factory) : IClassFixture<Porta
 
         Assert.InRange(html.IndexOf("Future session", StringComparison.Ordinal), 0, past);
         Assert.True(html.IndexOf("Finished session", StringComparison.Ordinal) > past);
-        Assert.Contains(PageLinks.All(html), link => link.Text == "Register" && link.OpensInNewTab);
+        Assert.Contains(PageLinks.All(html), link => link.Text == "Register");
     }
 
     [Fact]

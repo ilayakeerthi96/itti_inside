@@ -4,7 +4,8 @@ namespace Itti.Inside.Domain.Navigation;
 /// A header menu entry. An entry with <see cref="Children"/> renders as a dropdown. The path is either
 /// a page on this site, such as <c>/hr/travel-desk</c>, or a full address on another site.
 /// </summary>
-public sealed record NavigationItem(string Title, string? Path, IReadOnlyList<NavigationItem> Children)
+/// <param name="OpensInNewTab">True for the entries that open in a new tab: Applications, QA and Organization Training.</param>
+public sealed record NavigationItem(string Title, string? Path, IReadOnlyList<NavigationItem> Children, bool OpensInNewTab = false)
 {
     public bool HasChildren => Children.Count > 0;
 

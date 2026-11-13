@@ -20,7 +20,22 @@ public sealed record BirthdayEntry(int Id, string EmployeeId, string Name, int D
     : IContentItem;
 
 /// <summary>A Rock Star Award announcement.</summary>
-public sealed record RockstarAward(int Id, string Title, DateOnly PublishedOn, string Excerpt, int? ImageId = null) : IContentItem, IHasImage;
+public sealed record RockstarAward(int Id, string Title, DateOnly PublishedOn, string Excerpt) : IContentItem
+{
+    /// <summary>
+    /// The award's pictures in order, the first being its cover. Kept in <see cref="RockstarAwardImage"/>
+    /// and filled in by the pages that show them.
+    /// </summary>
+    public IReadOnlyList<int> ImageIds { get; init; } = [];
+}
+
+/// <summary>One picture of a Rockstar Award. An award can have several, in the order of <paramref name="Position"/>.</summary>
+public sealed record RockstarAwardImage(int Id, int AwardId, int ImageId, int Position);
+
+public static class RockstarAwardRules
+{
+    public const int MaxImages = 10;
+}
 
 /// <summary>A congratulations board, used by both Wedding Bells and New Born.</summary>
 public sealed record CelebrationBoard(IReadOnlyList<CelebrationAnnouncement> Announcements, string Closing);

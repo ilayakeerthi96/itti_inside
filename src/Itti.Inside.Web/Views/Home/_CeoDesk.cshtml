@@ -9,7 +9,9 @@
         @* The message's own picture when it has one, otherwise the drawing. *@
         @if (Model?.ImageId is { } imageId)
         {
-            <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @Model.Title" width="240" height="240" loading="lazy" />
+            <button type="button" class="photo-button" data-photo="@Url.Content($"~/media/{imageId}")" data-photo-caption="@Model.Title" aria-label="Show the picture larger">
+                <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @Model.Title" width="240" height="240" loading="lazy" />
+            </button>
         }
         else
         {
@@ -27,6 +29,6 @@
             <p class="ceo__title">@Model.Title</p>
             <p class="ceo__excerpt">@TextDisplay.Shorten(Model.Message, CardLength)</p>
         }
-        <a class="btn-portal" href="~/ceo-desk" new-tab="true">More <icon name="arrow-right" /></a>
+        <a class="btn-portal" href="~/ceo-desk">More <icon name="arrow-right" /></a>
     </div>
 </section>

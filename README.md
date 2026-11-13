@@ -1,6 +1,6 @@
 # ITTI Inside
 
-The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA and Logout menu items go to the pages of the current intranet. The HR menu has three pages of its own: Corporate Medical Insurance, Holidays and Organization Training. Every link opens in a new tab. Admins sign in to the master page to update the landing page and the HR pages, and changes show straight away. This version is a prototype: the admin sign-in is a demo, and the starting content is dummy data.
+The ITTI intranet portal rebuilt on .NET 10 with an updated UI. The header and landing page sections follow the current site, and the landing page opens straight away, without signing in. The Applications, QA and Logout menu items go to the pages of the current intranet. The HR menu has Corporate Medical Insurance and Holidays, pages of its own, and Organization Training, which goes to the training portal. Applications, QA and Organization Training open in a new tab; everything else opens in the same tab. Admins sign in to the master page to update the landing page and the HR pages, and changes show straight away. This version is a prototype: the admin sign-in is a demo, and the starting content is dummy data.
 
 ## Stack
 
@@ -52,7 +52,7 @@ CEO's Desk is a list of dated messages. The landing page shows the start of the 
 
 ### Pictures
 
-A CEO's Desk message and a Rockstar Award can each have a picture, uploaded on its master form: JPG, PNG or WebP, up to 5 MB. The CEO's picture takes the place of the drawing on the card and the CEO's Desk page. An award's picture fills the top of its card and of its entry on the awards page. The content of each file is checked, not just its name, and SVG is refused, because it can carry script. Pictures live in the `PortalImages` table, apart from the messages and awards, and `/media/<id>` serves them. A replaced or removed picture is deleted, and so is the picture of a deleted item. Each new picture gets a new Id, so browsers may keep a picture for a year.
+A CEO's Desk message can have one picture, and a Rockstar Award up to 10, uploaded on their master forms: JPG, PNG or WebP, up to 5 MB each. The master forms show the chosen pictures before they are uploaded, and an award's current pictures each have a **Remove** box. The CEO's picture takes the place of the drawing on the card and the CEO's Desk page. An award's first picture is its cover: it fills the top of its card, with "+2 more" when there are others, and the awards page shows the rest in a strip below. Clicking any picture opens it larger on the same page, and an award's pictures page with the arrows or arrow keys. An award's pictures are listed in `RockstarAwardImages`, in order. The content of each file is checked, not just its name, and SVG is refused, because it can carry script. Pictures live in the `PortalImages` table, apart from the messages and awards, and `/media/<id>` serves them. A replaced or removed picture is deleted, and so is the picture of a deleted item. Each new picture gets a new Id, so browsers may keep a picture for a year.
 
 ### HR pages
 
@@ -60,7 +60,7 @@ A CEO's Desk message and a Rockstar Award can each have a picture, uploaded on i
 | --- | --- | --- |
 | `/hr/corporate-medical-insurance` | One record: insurer, TPA, policy number, validity, sum insured, who is covered, benefits and claim steps (one per line), network hospitals link, helpdesk. Plus a policy document to download. | The policy with an "In force" badge, the benefits, the claim steps, the helpdesk and the download |
 | `/hr/holidays` | Holidays one at a time, the notes under the list, or HR's Word file. A Word file with a table of dates (for example SL # / PUBLIC HOLIDAY / DATE / DAY) replaces that year's holidays. PDF and Excel files are offered for download only. | This year's holidays, the next one highlighted, optional ones marked, the notes and the file to download |
-| `/hr/organization-training` | Trainings: title, category, date, time, mode, venue or link, trainer, audience, description and how to register | Upcoming trainings, soonest first, then past ones |
+| `/hr/organization-training` | Trainings: title, category, date, time, mode, venue or link, trainer, audience, description and how to register | Upcoming trainings, soonest first, then past ones. The menu now goes to the training portal, `https://training.ittiapps.cloud`, instead, so this page and its master section are not linked. |
 
 Uploaded files are stored in the database, so the server needs no folder for them. Each file's content is checked against its type, and downloads are sent as attachments. `WordHolidayListReader` reads the Word file without any extra library.
 
@@ -85,7 +85,7 @@ Birthdays, Wedding Bells and New Born entries each have a **Posted on** date, wh
 
 ### Full pages
 
-Every card links to a page with all of its items, opened in a new tab: `/customer-feedback`, `/birthdays` (grouped by the month they were posted in), `/rockstar-awards`, `/wedding-bells` and `/new-born`. They page through 10 items at a time, or 6 awards. **Read More** on an award opens `/rockstar-awards#award-<id>`, on the page that holds that award. `DetailsController` serves them, without signing in.
+Every card links to a page with all of its items: `/customer-feedback`, `/birthdays` (grouped by the month they were posted in), `/rockstar-awards`, `/wedding-bells` and `/new-born`. They page through 10 items at a time, or 6 awards. **Read More** on an award opens `/rockstar-awards#award-<id>`, on the page that holds that award. `DetailsController` serves them, without signing in.
 
 In the demo, the admin account is `Authentication:Admin`. A real sign-in must give the people who update the portal the `PortalRoles.Admin` role, in `AuthenticatedUser.Roles`.
 
@@ -137,7 +137,7 @@ The menu is the `menu` list in `Seed/portal-content.json`, with the QA and HR it
 
 ### Links and new tabs
 
-Every link on the portal pages opens in a new tab, so the page stays open behind it: all menu items, Home and the logo included, the card links, the breadcrumbs and **Back to Home**. In a view, add `new-tab="true"` to an `<a>` for the same behaviour. `NewTabTagHelper` adds `target="_blank"`, `rel="noopener"` and a note for screen readers. A test checks every link on the portal pages, so a new link without it fails the build. Links within a page, e-mail addresses and the links on the master pages and the Admin Sign In page stay as they are.
+Only Applications, the two QA items and Organization Training open in a new tab. They are the menu entries with `"newTab": true` in `Seed/portal-content.json`. Every other link opens in the same tab. In a view, `new-tab="true"` on an `<a>` opens it in a new tab: `NewTabTagHelper` adds `target="_blank"`, `rel="noopener"` and a note for screen readers. A test checks that no other link on the portal pages opens in a new tab.
 
 ### Inner pages
 

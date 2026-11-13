@@ -14,7 +14,9 @@
                 <div class="ceo__art">
                     @if (latest?.ImageId is { } imageId)
                     {
-                        <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @latest.Title" width="240" height="240" />
+                        <button type="button" class="photo-button" data-photo="@Url.Content($"~/media/{imageId}")" data-photo-caption="@latest.Title" aria-label="Show the picture larger">
+                            <img class="ceo__photo" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @latest.Title" width="240" height="240" />
+                        </button>
                     }
                     else
                     {
@@ -55,7 +57,9 @@
                             <article class="ceo-archive__post @(post.ImageId is null ? null : "ceo-archive__post--with-photo")" id="message-@post.Id" data-pager-item>
                                 @if (post.ImageId is { } postImageId)
                                 {
-                                    <img class="ceo-archive__photo" src="@Url.Content($"~/media/{postImageId}")" alt="Picture for @post.Title" width="120" height="120" loading="lazy" />
+                                    <button type="button" class="photo-button ceo-archive__photo-button" data-photo="@Url.Content($"~/media/{postImageId}")" data-photo-caption="@post.Title" aria-label="Show the picture larger">
+                                        <img class="ceo-archive__photo" src="@Url.Content($"~/media/{postImageId}")" alt="Picture for @post.Title" width="120" height="120" loading="lazy" />
+                                    </button>
                                 }
                                 <h3 class="ceo-archive__title">@post.Title</h3>
                                 <time class="detail__date" datetime="@post.PostedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">

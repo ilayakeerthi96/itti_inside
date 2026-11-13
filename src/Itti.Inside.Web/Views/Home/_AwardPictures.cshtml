@@ -1,0 +1,42 @@
+@* An award's pictures: the cover, which opens all of them in the preview, and on the awards page a strip of the others. *@
+@model RockstarAward
+@{
+    var isLarge = ViewData["Large"] is true;
+    var group = $"award-{Model.Id}";
+    var count = Model.ImageIds.Count;
+    string Source(int imageId) => Url.Content($"~/media/{imageId}");
+    string Caption(int index) => count > 1 ? $"{Model.Title} ({index + 1} of {count})" : Model.Title;
+}
+
+<button type="button" class="photo-button award__cover" data-photo="@Source(Model.ImageIds[0])" data-photo-group="@group"
+        data-photo-caption="@Caption(0)" aria-label="@(count > 1 ? $"Show the {count} pictures of this award" : "Show the picture larger")">
+    <img class="award__image @(isLarge ? "award__image--large" : null)" src="@Source(Model.ImageIds[0])" alt="Picture for @Model.Title"
+         width="@(isLarge ? 480 : 320)" height="@(isLarge ? 360 : 200)" loading="lazy" />
+    @if (count > 1)
+    {
+        <span class="award__count">+@(count - 1) more</span>
+    }
+</button>
+
+@if (isLarge && count > 1)
+{
+    <ul class="award__strip" aria-label="More pictures">
+        @for (var index = 1; index < count; index++)
+        {
+            <li>
+                <button type="button" class="photo-button" data-photo="@Source(Model.ImageIds[index])" data-photo-group="@group"
+                        data-photo-caption="@Caption(index)" aria-label="Show picture @(index + 1) of @count">
+                    <img src="@Source(Model.ImageIds[index])" alt="" width="72" height="72" loading="lazy" />
+                </button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    @* The other pictures, for the preview to page through. *@
+    @for (var index = 1; index < count; index++)
+    {
+        <span hidden data-photo="@Source(Model.ImageIds[index])" data-photo-group="@group" data-photo-caption="@Caption(index)"></span>
+    }
+}

@@ -1,6 +1,10 @@
 @model MasterSectionViewModel<RockstarAward, RockstarAwardForm>
 @{
     ViewData["Title"] = "Rockstar Awards";
+
+    // Each award's pictures, for the cover and count in the list.
+    var pictures = ViewData[nameof(RockstarAward.ImageIds)] as IReadOnlyDictionary<int, IReadOnlyList<int>>
+        ?? new Dictionary<int, IReadOnlyList<int>>();
 }
 
 <section class="panel" aria-labelledby="master-form-title">
@@ -29,7 +33,7 @@
             <span class="master-field__error" asp-validation-for="Form.Excerpt"></span>
         </div>
 
-        <partial name="~/Views/Master/_ImageField.cshtml" for="Form" />
+        <partial name="~/Views/Master/_GalleryField.cshtml" for="Form" />
 
         <partial name="~/Views/Master/_FormButtons.cshtml" model="Model.IsEditing" />
     </form>
@@ -58,7 +62,17 @@
                     @foreach (var item in Model.Items)
                     {
                         <tr>
-                            <td><partial name="~/Views/Master/_Thumbnail.cshtml" model="item.ImageId" /></td>
+                            @{
+                                var awardPictures = pictures.GetValueOrDefault(item.Id) ?? [];
+                                int? cover = awardPictures.Count > 0 ? awardPictures[0] : null;
+                            }
+                            <td class="text-nowrap">
+                                <partial name="~/Views/Master/_Thumbnail.cshtml" model="cover" />
+                                @if (awardPictures.Count > 1)
+                                {
+                                    <span class="master-thumb__count">+@(awardPictures.Count - 1)</span>
+                                }
+                            </td>
                             <td class="text-nowrap">@item.PublishedOn.ToString("d MMM yyyy", CultureInfo.InvariantCulture)</td>
                             <td>@item.Title</td>
                             <td><partial name="~/Views/Master/_RowActions.cshtml" model="item.Id" /></td>

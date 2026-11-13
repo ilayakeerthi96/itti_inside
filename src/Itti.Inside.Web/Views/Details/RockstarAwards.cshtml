@@ -27,9 +27,10 @@
                     @foreach (var award in Model)
                     {
                         <article class="award" id="award-@award.Id" data-pager-item>
-                            @if (award.ImageId is { } imageId)
+                            @if (award.ImageIds.Count > 0)
                             {
-                                <img class="award__image award__image--large" src="@Url.Content($"~/media/{imageId}")" alt="Picture for @award.Title" width="480" height="300" loading="lazy" />
+                                <partial name="~/Views/Home/_AwardPictures.cshtml" model="award"
+                                         view-data='new ViewDataDictionary(ViewData) { ["Large"] = true }' />
                             }
                             else
                             {

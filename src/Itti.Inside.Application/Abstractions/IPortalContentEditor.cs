@@ -35,4 +35,10 @@ public interface IPortalContentEditor
     Task<int> SaveImageAsync(PortalImage image, CancellationToken cancellationToken);
 
     Task DeleteImageAsync(int id, CancellationToken cancellationToken);
+
+    /// <summary>An award's pictures, in order.</summary>
+    Task<IReadOnlyList<int>> GetAwardImageIdsAsync(int awardId, CancellationToken cancellationToken);
+
+    /// <summary>Makes these pictures, in this order, the award's pictures.</summary>
+    Task SetAwardImagesAsync(int awardId, IReadOnlyList<int> imageIds, CancellationToken cancellationToken);
 }

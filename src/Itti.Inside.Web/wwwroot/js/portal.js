@@ -222,6 +222,117 @@
         });
     };
 
+    // A picture button opens a larger preview on the same page. Pictures with the same data-photo-group,
+    // such as one award's pictures, page with previous and next, or the arrow keys.
+    const setUpPhotoPreview = () => {
+        if (!document.querySelector('[data-photo]')) {
+            return;
+        }
+
+        const dialog = document.createElement('dialog');
+        dialog.className = 'photo-preview';
+        dialog.setAttribute('aria-label', 'Picture');
+        dialog.innerHTML =
+            '<figure class="photo-preview__figure">' +
+            '<img class="photo-preview__image" alt="">' +
+            '<figcaption class="photo-preview__caption"></figcaption>' +
+            '</figure>' +
+            '<button type="button" class="photo-preview__close" aria-label="Close">&times;</button>' +
+            '<button type="button" class="photo-preview__step photo-preview__step--previous" aria-label="Previous picture">&lsaquo;</button>' +
+            '<button type="button" class="photo-preview__step photo-preview__step--next" aria-label="Next picture">&rsaquo;</button>';
+        document.body.append(dialog);
+
+        const image = dialog.querySelector('.photo-preview__image');
+        const caption = dialog.querySelector('.photo-preview__caption');
+        const previous = dialog.querySelector('.photo-preview__step--previous');
+        const next = dialog.querySelector('.photo-preview__step--next');
+        let photos = [];
+        let current = 0;
+
+        const show = (index) => {
+            current = (index + photos.length) % photos.length;
+            const photo = photos[current];
+
+            image.src = photo.dataset.photo;
+            image.alt = photo.dataset.photoCaption || '';
+            caption.textContent = photo.dataset.photoCaption || '';
+            caption.hidden = !caption.textContent;
+            previous.hidden = next.hidden = photos.length < 2;
+        };
+
+        document.addEventListener('click', (event) => {
+            const trigger = event.target.closest('button[data-photo]');
+            if (!trigger) {
+                return;
+            }
+
+            const group = trigger.dataset.photoGroup;
+            photos = group
+                ? [...document.querySelectorAll('[data-photo-group]')].filter((photo) => photo.dataset.photoGroup === group)
+                : [trigger];
+
+            show(photos.indexOf(trigger));
+            dialog.showModal();
+        });
+
+        previous.addEventListener('click', () => show(current - 1));
+        next.addEventListener('click', () => show(current + 1));
+        dialog.querySelector('.photo-preview__close').addEventListener('click', () => dialog.close());
+
+        // A click on the dark area around the picture closes it, like Escape.
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) {
+                dialog.close();
+            }
+        });
+
+        dialog.addEventListener('keydown', (event) => {
+            if (photos.length > 1 && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+                show(current + (event.key === 'ArrowRight' ? 1 : -1));
+            }
+        });
+
+        dialog.addEventListener('close', () => image.removeAttribute('src'));
+    };
+
+    // On the master page, shows the pictures chosen in a file input before they are uploaded.
+    const setUpUploadPreviews = () => {
+        document.querySelectorAll('input[type="file"][data-image-preview]').forEach((input) => {
+            const list = document.getElementById(input.dataset.imagePreview);
+            if (!list) {
+                return;
+            }
+
+            let addresses = [];
+
+            input.addEventListener('change', () => {
+                addresses.forEach((address) => URL.revokeObjectURL(address));
+                addresses = [];
+                list.replaceChildren();
+
+                [...input.files].filter((file) => file.type.startsWith('image/')).forEach((file) => {
+                    const address = URL.createObjectURL(file);
+                    const item = document.createElement('li');
+                    const picture = document.createElement('img');
+                    const name = document.createElement('span');
+
+                    addresses.push(address);
+                    item.className = 'master-gallery__item';
+                    picture.src = address;
+                    picture.alt = '';
+                    picture.width = 120;
+                    picture.height = 120;
+                    name.className = 'master-gallery__name';
+                    name.textContent = file.name;
+                    item.append(picture, name);
+                    list.append(item);
+                });
+
+                list.hidden = list.children.length === 0;
+            });
+        });
+    };
+
     setUpCarousel();
     setUpTicker();
     setUpPagers();
@@ -229,4 +340,6 @@
     setUpSignIn();
     setUpConfirmations();
     setUpHoverMenus();
+    setUpPhotoPreview();
+    setUpUploadPreviews();
 })();
