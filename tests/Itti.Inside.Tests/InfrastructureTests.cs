@@ -32,6 +32,13 @@ public sealed class SeedDataTests
     }
 
     [Fact]
+    public void Hero_slides_have_no_sample_wording()
+    {
+        Assert.All(Seed.HeroSlides, slide => Assert.DoesNotContain("Sample slide", slide.Subtitle, StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(Seed.HeroSlides, slide => slide.Subtitle == "News, people and applications for every ITTIan.");
+    }
+
+    [Fact]
     public void Menu_links_to_other_sites_are_full_web_addresses()
     {
         var links = Seed.Menu
