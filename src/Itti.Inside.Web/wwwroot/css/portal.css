@@ -431,6 +431,48 @@ a {
     flex-direction: column;
 }
 
+/* Landing page cards. Cards side by side share one height, so each keeps its content at the top and
+   its link on the bottom edge, and long text stops after a few lines. The full text is on each card's
+   own page. */
+#customer-feedback,
+#birthdays,
+#rockstar-awards {
+    display: flex;
+    flex-direction: column;
+}
+
+#customer-feedback > .panel__link,
+#birthdays > .panel__link {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+#customer-feedback .feedback__title,
+#rockstar-awards .award__title,
+#customer-feedback .feedback__excerpt,
+#rockstar-awards .award__excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+#customer-feedback .feedback__excerpt {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
+#rockstar-awards .award__excerpt {
+    flex: none;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+}
+
+#rockstar-awards .award > .panel__link {
+    margin-top: auto;
+}
+
 .panel {
     flex: 1;
     padding: 28px;
@@ -577,12 +619,13 @@ a {
 }
 
 /* The CEO's photo, in place of the drawing. */
+/* The whole picture shows, never cropped, so a banner with text keeps all of it. */
 .ceo__photo {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 3;
     border-radius: var(--radius-lg);
-    background: var(--line);
-    object-fit: cover;
-    object-position: top;
+    background: var(--canvas);
+    object-fit: contain;
+    object-position: center;
 }
 
 .ceo-archive__post--with-photo {
@@ -872,7 +915,8 @@ a {
     color: var(--ink);
 }
 
-/* An award's picture fills the top of its card. Cropping keeps the top, where faces usually are. */
+/* An award's picture sits in a box of fixed shape at the top of its card. The whole picture shows,
+   never cropped, so posters keep their text; the box fills any space around it. */
 .award__image {
     display: block;
     width: 100%;
@@ -880,9 +924,9 @@ a {
     aspect-ratio: 16 / 10;
     margin-bottom: 14px;
     border-radius: var(--radius-sm);
-    background: var(--line);
-    object-fit: cover;
-    object-position: top;
+    background: var(--surface);
+    object-fit: contain;
+    object-position: center;
 }
 
 .award__image--large {
@@ -1069,7 +1113,9 @@ a {
 }
 
 .celebration__body {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-width: 0;
     padding: 28px;
 }
@@ -1095,8 +1141,11 @@ a {
     font-weight: 600;
 }
 
+/* Wedding Bells and New Born sit side by side, so both keep View all on their bottom edge. */
 .celebration__more {
-    margin-top: 10px;
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: 12px;
 }
 
 /* Inner pages */
